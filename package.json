@@ -1,0 +1,20 @@
+{
+  "name": "proxy",
+  "version": "1.0.0",
+  "description": "a web proxy",
+  "main": "proxy.coffee",
+  "keywords": [
+    "proxy"
+  ],
+  "author": "qiujun",
+  "dependencies": {
+    "http-proxy": "latest",
+    "express": "latest",
+    "express-session": "latest",
+    "body-parser":"latest",
+    "mysql":"latest",
+    "log4js":"latest",
+    "request":"latest",
+    "node-schedule":"latest"
+  }
+}

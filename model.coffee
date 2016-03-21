@@ -22,7 +22,7 @@ model.updateCount = (callback)->
     [sql, values] = ['', []]
     for domain, item of model._cache
         if !item then continue
-        sql += 'UPDATE `proxy` SET `count` = ? WHERE `domain` = ?'
+        sql += 'UPDATE `proxy` SET `count` = ? WHERE `domain` = ?;'
         values.push item.count, domain
 
     # 执行SQL
@@ -34,9 +34,10 @@ model.updateCount = (callback)->
 
 # 定时更新访问次数
 model.schedule = ->
-    schedule.scheduleJob '*/5 * * * *', ->
+    schedule.scheduleJob '*/1 * * * *', ->
         logger.debug '执行定时任务，更新访问次数'
-        model.updateCount()
+        model.updateCount (err) ->
+            if err then logger.debug '更新访问次数失败：', err
 
 # 添加记录
 model.add    = (sid, mark, domain, target, callback) ->

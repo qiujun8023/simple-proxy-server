@@ -26,11 +26,8 @@
         $scope.data = (ref = data.data) != null ? ref.list : void 0;
         $scope.user = (ref1 = data.data) != null ? ref1.user : void 0;
         if ($scope.data.length === 0) {
-          $scope.error = '未找到相关记录，请添加';
+          return $scope.error = '未找到相关记录，请添加';
         }
-        return $timeout(function() {
-          return $('.help.circle.icon').popup();
-        });
       }).error(function(data, status) {
         return $scope.check.call($scope, data);
       });

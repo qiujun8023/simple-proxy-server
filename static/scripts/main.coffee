@@ -20,8 +20,6 @@ proxy.controller 'main', ($scope, $timeout, $http) ->
             $scope.user    = data.data?.user
             if $scope.data.length is 0
                 $scope.error = '未找到相关记录，请添加'
-            $timeout ->
-                $('.help.circle.icon').popup()
         .error (data, status) ->
             $scope.check.call $scope, data
 

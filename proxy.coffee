@@ -39,7 +39,7 @@ app.use (req, res, next) ->
 
 # 使用log4j作为日志输出
 app.use log4js.connectLogger logger,
-    level :'info'
+    level :'debug'
     format:':method :url'
 
 # 处理静态目录

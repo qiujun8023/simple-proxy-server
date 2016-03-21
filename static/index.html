@@ -29,7 +29,7 @@
         请先将您的域名CNAME别名解析到
         <div class="ui teal horizontal label">proxy.ticknet.cn</div>
       </div>
-      <p>由于学校网络环境问题，部分内网IP可能会代理失败</p>
+      <p>如没有域名，也可使用形如 xxx.proxy.ticknet.cn 的域名 (xxx为自定义前缀)</p>
     </div>
     <button class="ui teal button" ng-click="edit()">添加</button>
   </div>
@@ -42,25 +42,35 @@
     <div ng-bind="error"></div>
   </div>
   <div ng-show="!loading && !error && data && data.length">
-    <table class="ui teal striped unstackable celled center aligned attached table">
+    <table class="ui teal striped unstackable celled center aligned attached sortable table">
       <thead>
         <tr>
-          <th>用户</th>
-          <th>名称</th>
-          <th>域名</th>
-          <th>内网地址</th>
-          <th>
-            计次 <i class="help circle icon" data-content="资源请求个数，非访问次数，一次访问可能请求多个文件，计次存在5分钟延迟"></i>
+          <th ng-click="by = (name == 'sid')? !by:false; name = 'sid';">
+            用户 <i class="sort icon"></i>
+          </th>
+          <th ng-click="by = (name == 'mark')? !by:false; name = 'mark';">
+            名称 <i class="sort icon"></i>
+          </th>
+          <th ng-click="by = (name == 'domain')? !by:false; name = 'domain';">
+            域名 <i class="sort icon"></i>
+          </th>
+          <th ng-click="by = (name == 'target')? !by:false; name = 'target';">
+            内网地址 <i class="sort icon"></i>
+          </th>
+          <th ng-click="by = (name == 'count')? !by:true; name = 'count';">
+            计次 <i class="sort icon"></i>
           </th>
           <th>编辑</th>
           <th>删除</th>
         </tr>
       </thead>
-      <tbody>
-        <tr ng-repeat="item in data">
+      <tbody ng-init="name = 'time'; by = 'false'">
+        <tr ng-repeat="item in data | orderBy:name:by">
           <td ng-bind="item.sid"></td>
           <td ng-bind="item.mark"></td>
-          <td ng-bind="item.domain"></td>
+          <td>
+            <a target="_blank" ng-href="http://{{item.domain}}" ng-bind="item.domain"></a>
+          </td>
           <td ng-bind="item.target"></td>
           <td ng-bind="item.count"></td>
           <td ng-click="edit(item)">
@@ -83,7 +93,7 @@
       </div>
       <div class="field">
         <label>域名</label>
-        <input type="text" name="domain" ng-model="editItem.domain" placeholder="用作反向代理的域名，形如：x.abc.cn (不管几级域名，不要带协议及端口)">
+        <input type="text" name="domain" ng-model="editItem.domain" placeholder="用作反向代理的域名，形如：proxy.ticknet.cn (不管几级域名，不带协议及端口)">
       </div>
       <div class="field">
         <label>内网地址</label>

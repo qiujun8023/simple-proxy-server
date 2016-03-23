@@ -25,7 +25,7 @@ proxy.on 'error', (err, req, res) ->
 
 # 处理代理
 app.use (req, res, next) ->
-    host = req.headers.host || ''
+    host = req.hostname || ''
     item = model.cache host
     if host is config.domain
         return next()

@@ -19,13 +19,16 @@ model.updateCount = (callback)->
     callback ||= ->
 
     # 构造SQL参数
+    flag = true
     [sql, values] = ['', []]
     for domain, item of model._cache
+        flag = false
         if !item then continue
         sql += 'UPDATE `proxy` SET `count` = ? WHERE `domain` = ?;'
         values.push item.count, domain
 
     # 执行SQL
+    if flag then return callback null
     config.mysqlQuery
         sql   : sql
         values: values
@@ -34,7 +37,7 @@ model.updateCount = (callback)->
 
 # 定时更新访问次数
 model.schedule = ->
-    schedule.scheduleJob '*/1 * * * *', ->
+    schedule.scheduleJob '*/3 * * * *', ->
         logger.debug '执行定时任务，更新访问次数'
         model.updateCount (err) ->
             if err then logger.debug '更新访问次数失败：', err

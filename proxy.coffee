@@ -33,6 +33,17 @@ app.use (req, res, next) ->
         return res.redirect "http://#{config.domain}"
     item.value.replace 'http://', ''
     logger.debug "代理访问 #{item.value}"
+    # 发送源IP
+    remoteAddress = req.connection.remoteAddress
+    req.headers['X-Real-IP']       = remoteAddress
+    req.headers['X-Forwarded-For'] = remoteAddress
+    # 防止远程服务器重定向带端口
+    req.headers.host = host + ':' + config.port
+    # 修改rawHeaders
+    req.rawHeaders = []
+    for k,v of req.headers
+        req.rawHeaders.push(k, v)
+    # 代理访问
     proxy.web req, res,
         target: "http://#{item.value}"
     item.count++
@@ -55,7 +66,8 @@ app.use bodyParser.urlencoded
 app.use session
     resave: true
     saveUninitialized: true
-    secret: 'pwtnmegvwxqtdn'
+    secret: config.session.secret
+    cookie: maxAge: config.session.maxAge
 
 # 微信授权相关
 app.get '/wechat/oauth' , wechat.oauth

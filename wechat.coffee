@@ -1,6 +1,8 @@
 request = require('request')
 config  = require(__dirname + '/config')
 
+logger = config.logger
+
 module.exports = wechat = {}
 
 # 由于网站请求少，不缓存AccessToken

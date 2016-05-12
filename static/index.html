@@ -3,7 +3,6 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>简易内网代理系统</title>
   <!-- css -->
   <link rel="stylesheet" href="http://cdn.bootcss.com/semantic-ui/2.1.8/semantic.min.css">
@@ -42,7 +41,11 @@
     <div ng-bind="error"></div>
   </div>
   <div ng-show="!loading && !error && data && data.length">
-    <table class="ui teal striped unstackable celled center aligned attached sortable table">
+    <div class="ui fluid icon input">
+      <input type="text" placeholder="搜索..." ng-model="filter">
+      <i class="search icon"></i>
+    </div>
+    <table class="ui teal striped unstackable celled center aligned sortable table">
       <thead>
         <tr>
           <th ng-click="by = (name == 'sid')? !by:false; name = 'sid';">
@@ -55,7 +58,7 @@
             域名 <i class="sort icon"></i>
           </th>
           <th ng-click="by = (name == 'target')? !by:false; name = 'target';">
-            内网地址 <i class="sort icon"></i>
+            目标 <i class="sort icon"></i>
           </th>
           <th ng-click="by = (name == 'count')? !by:true; name = 'count';">
             计次 <i class="sort icon"></i>
@@ -65,7 +68,7 @@
         </tr>
       </thead>
       <tbody ng-init="name = 'time'; by = 'false'">
-        <tr ng-repeat="item in data | orderBy:name:by">
+        <tr ng-repeat="item in data | filter:filter | orderBy:name:by">
           <td ng-bind="item.sid"></td>
           <td ng-bind="item.mark"></td>
           <td>

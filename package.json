@@ -1,11 +1,8 @@
 {
   "name": "simple-proxy",
-  "version": "2.0.0",
-  "engines": {
-    "node": ">=5.4.1"
-  },
+  "version": "2.0.1",
   "engineStrict": true,
-  "description": "简单的内网代理系统，需要在同时拥有内网IP与公网IP的机器上运行",
+  "description": "简易反向代理，支持 WEB 界面管理，支持 HTTPS",
   "main": "server/app.js",
   "scripts": {
     "dev": "nodemon -e js,yaml -x 'node --harmony' server/app.js",
@@ -15,8 +12,15 @@
     "start": "pm2 start pm2.json",
     "commit": "git cz"
   },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/qious/simple-proxy.git"
+  },
+  "keywords": [
+    "proxy"
+  ],
   "author": "qiujun",
-  "license": "",
+  "license": "MIT",
   "devDependencies": {
     "chai": "^3.5.0",
     "chance": "^1.0.4",

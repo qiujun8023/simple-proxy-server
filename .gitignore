@@ -1,1 +1,13 @@
+.idea
+.vscode
+
+*.log
+*.out
+
+.nyc_output
+coverage
+
 node_modules
+
+pm2.json
+server/config/local.*

@@ -13,13 +13,14 @@ const app = require('./lib/express')();
 const mws = require('./middleware');
 const ProxyService = require('./service').Proxy;
 
+// 处理代理
+app.use(mws.proxy());
+
+// 处理 Body
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: true,
 }));
-
-// 处理代理
-app.use(mws.proxy());
 
 // 加载 Session
 app.use(mws.session());
@@ -31,14 +32,12 @@ app.use(mws.router());
 app.use(mws.errorHandle());
 
 if (!module.parent) {
-  if (config.http) {
-    let http_server = http.createServer(app);
-    http_server.listen(config.http.port, config.host);
-    // eslint-disable-next-line
-    console.log(`Server listen on http://${config.domain}:${config.http.port}`);
-  }
+  let http_server = http.createServer(app);
+  http_server.listen(config.http.port, config.host);
+  // eslint-disable-next-line
+  console.log(`Server listen on http://${config.domain}:${config.http.port}`);
 
-  if (config.https) {
+  if (config.https.enable) {
     let options = {SNICallback: ProxyService.SNICallback};
     let https_server = https.createServer(options, app);
     https_server.listen(config.https.port, config.host);

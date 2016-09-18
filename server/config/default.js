@@ -9,6 +9,7 @@ let config = {
     port: 80,
   },
   https: {
+    enable: true,
     port: 443,
     cert: `-----BEGIN CERTIFICATE-----
 MIIGqDCCBZCgAwIBAgIQRVrwa08OFPN3FpWRrTr6VTANBgkqhkiG9w0BAQsFADBP

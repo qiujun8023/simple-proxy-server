@@ -8,6 +8,14 @@ const express = require('../lib/express');
 
 let router = express.Router();
 
+// 判断是否需要开启 HTTPS
+router.use(function (req, res, next) {
+  if (config.env !== 'test' && !req.secure && config.https.enable) {
+    return res.redirect(`https://${req.hostname}${req.url}`);
+  }
+  next();
+});
+
 // 处理静态目录
 router.use(express.static(config.client_dir));
 

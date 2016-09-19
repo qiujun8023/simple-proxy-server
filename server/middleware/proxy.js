@@ -34,6 +34,7 @@ router.use(function* (req, res, next) {
   let remote_address = req.connection.remoteAddress;
   req.headers['x-real-ip'] = remote_address;
   req.headers['x-forwarded-for'] = remote_address;
+  req.headers['x-forwarded-proto'] = req.protocol;
 
   // 设置回源域名，设置当前端口
   let port = req.headers['host'].split(':')[1];

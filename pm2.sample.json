@@ -1,5 +1,5 @@
 {
-  "name": "proxy",
+  "name": "simple-proxy",
   "script": "server/app.js",
   "log_date_format": "YYYY-MM-DD HH:mm Z",
   "exec_mode": "cluster",
@@ -11,6 +11,6 @@
   "merge_logs": true,
   "autorestart": true,
   "_": "_",
-  "error_file": "/tmp/proxy.stderr.log",
-  "out_file": "/tmp/proxy.stdout.log"
+  "error_file": "/tmp/simple-proxy.stderr.log",
+  "out_file": "/tmp/simple-proxy.stdout.log"
 }

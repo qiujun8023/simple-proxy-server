@@ -6,6 +6,7 @@ process.env.NODE_CONFIG_DIR= __dirname +'/config';
 const http = require('http');
 const https = require('https');
 
+const co = require('co');
 const config = require('config');
 const bodyParser = require('body-parser');
 
@@ -38,8 +39,14 @@ if (!module.parent) {
   console.log(`Server listen on http://${config.domain}:${config.http.port}`);
 
   if (config.https.enable) {
-    let options = {SNICallback: ProxyService.SNICallback};
-    let https_server = https.createServer(options, app);
+    let https_server = https.createServer({
+      // HTTPS SNI 回调
+      SNICallback: function (domain, cb) {
+        co(function* () {
+          return yield ProxyService.SNIAsync(domain);
+        }).then((ctx) => cb(null, ctx)).catch(cb);
+      },
+    }, app);
     https_server.listen(config.https.port, config.host);
     // eslint-disable-next-line
     console.log(`Server listen on https://${config.domain}:${config.https.port}`);

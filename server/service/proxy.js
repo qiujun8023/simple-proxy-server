@@ -3,20 +3,12 @@
 const tls = require('tls');
 
 const _ = require('lodash');
-const co = require('co');
 const config = require('config');
 
 const redis = require('../lib/redis')('proxy');
 const ProxyModel = require('../model').Proxy;
 
 exports = module.exports = {};
-
-// HTTPS SNI 回调
-exports.SNICallback = function (domain, cb) {
-  co(function* () {
-    return yield exports.SNIAsync(domain);
-  }).then((ctx) => cb(null, ctx)).catch(cb);
-};
 
 exports.SNIAsync = function* (domain) {
   let key;

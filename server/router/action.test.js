@@ -85,7 +85,7 @@ describe('server/router/action', function () {
         .post('/action')
         .set('Host', config.domain)
         .send({
-          id: -1,
+          proxy_id: -1,
           mark: random.proxy.getMark(),
         })
         .expect(404);
@@ -96,7 +96,7 @@ describe('server/router/action', function () {
         .post('/action')
         .set('Host', config.domain)
         .send({
-          id: list[0].id,
+          proxy_id: list[0].proxy_id,
           domain: config.domain,
         })
         .expect(403);
@@ -108,7 +108,7 @@ describe('server/router/action', function () {
         .post('/action')
         .set('Host', config.domain)
         .send({
-          id: list[0].id,
+          proxy_id: list[0].proxy_id,
           mark: mark,
         })
         .expect(200);
@@ -129,7 +129,7 @@ describe('server/router/action', function () {
         .delete('/action')
         .set('Host', config.domain)
         .query({
-          id: -1,
+          proxy_id: -1,
         })
         .expect(404);
     });
@@ -139,7 +139,7 @@ describe('server/router/action', function () {
         .delete('/action')
         .set('Host', config.domain)
         .query({
-          id: list[0].id,
+          proxy_id: list[0].proxy_id,
         })
         .expect(200);
 

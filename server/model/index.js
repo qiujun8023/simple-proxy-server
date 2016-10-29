@@ -12,7 +12,9 @@ exports.User.sync();
 
 exports.User.hasMany(exports.Proxy, {
   foreignKey: 'user_id',
+  constraints: false,
 });
 exports.Proxy.belongsTo(exports.User, {
   foreignKey: 'user_id',
+  constraints: false,
 });

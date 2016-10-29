@@ -51,12 +51,12 @@ exports._getCacheByDomainAsync = function* (domain) {
 // 增加代理
 exports.addAsync = function* (options) {
   let proxy = yield ProxyModel.create(options);
-  return _.isEmpty(proxy) ? false : proxy.id;
+  return _.isEmpty(proxy) ? false : proxy.proxy_id;
 };
 
 // 删除代理
-exports.removeAsync = function* (id) {
-  let proxy = yield this._getAsync(id);
+exports.removeAsync = function* (proxy_id) {
+  let proxy = yield this._getAsync(proxy_id);
   if (_.isEmpty(proxy)) {
     return true;
   }
@@ -67,8 +67,8 @@ exports.removeAsync = function* (id) {
 };
 
 // 更新代理
-exports.updateAsync = function* (id, options) {
-  let proxy = yield this._getAsync(id);
+exports.updateAsync = function* (proxy_id, options) {
+  let proxy = yield this._getAsync(proxy_id);
   if (_.isEmpty(proxy)) {
     return false;
   }
@@ -82,15 +82,15 @@ exports.updateAsync = function* (id, options) {
 };
 
 // 通过主键查询
-exports._getAsync = function* (id) {
-  return yield ProxyModel.findById(id, {
+exports._getAsync = function* (proxy_id) {
+  return yield ProxyModel.findById(proxy_id, {
     include: [UserModel],
   });
 };
 
 // 通过主键查询
-exports.getAsync = function* (id) {
-  let proxy = yield this._getAsync(id);
+exports.getAsync = function* (proxy_id) {
+  let proxy = yield this._getAsync(proxy_id);
   if (_.isEmpty(proxy)) {
     return false;
   }

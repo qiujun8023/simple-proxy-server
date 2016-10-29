@@ -20,8 +20,8 @@ exports._createTestProxyAsync = function* (tls, opts) {
   }
 
   data = _.assign(data, opts || {});
-  let id = yield ProxyServer.addAsync(data);
-  return yield ProxyServer.getAsync(id);
+  let proxy_id = yield ProxyServer.addAsync(data);
+  return yield ProxyServer.getAsync(proxy_id);
 };
 
 exports.createTestProxyAsync = function* (opts) {
@@ -33,5 +33,5 @@ exports.createTestProxyWithTlsAsync = function* (opts) {
 };
 
 exports.removeTestProxyAsync = function* (proxy) {
-  return yield ProxyServer.removeAsync(proxy.id);
+  return yield ProxyServer.removeAsync(proxy.proxy_id);
 };

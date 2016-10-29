@@ -5,7 +5,7 @@ const Sequelize = require('sequelize');
 const sequelize = require('../lib/sequelize')('proxy');
 
 module.exports = sequelize.define('proxy', {
-  id: {
+  proxy_id: {
     type: Sequelize.INTEGER,
     primaryKey: true,
     autoIncrement: true,

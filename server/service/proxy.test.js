@@ -17,7 +17,7 @@ describe('server/service/proxy', function () {
     it('should add proxy success', function* () {
       proxy_without_tls = yield utility.createTestProxyAsync();
       expect(proxy_without_tls).to.include.keys([
-        'id',
+        'proxy_id',
         'user_id',
         'mark',
         'domain',
@@ -30,7 +30,7 @@ describe('server/service/proxy', function () {
     it('should add proxy with tls success', function* () {
       proxy_with_tls = yield utility.createTestProxyWithTlsAsync();
       expect(proxy_without_tls).to.include.keys([
-        'id',
+        'proxy_id',
         'user_id',
         'mark',
         'domain',
@@ -68,7 +68,7 @@ describe('server/service/proxy', function () {
     it('should get data from cache', function* () {
       let proxy = yield ProxyService.getByDomainAsync(proxy_with_tls.domain);
       expect(proxy.is_cache).to.be.true;
-      expect(proxy.id).to.equal(proxy_with_tls.id);
+      expect(proxy.proxy_id).to.equal(proxy_with_tls.proxy_id);
     });
 
     it('should return false where domain not found', function* () {
@@ -81,7 +81,7 @@ describe('server/service/proxy', function () {
   describe('findAsync', function () {
     it('should find by user_id success', function* () {
       let list = yield ProxyService.findAsync({user_id: proxy_with_tls.user_id});
-      expect(list[0].id).to.deep.equal(proxy_with_tls.id);
+      expect(list[0].proxy_id).to.deep.equal(proxy_with_tls.proxy_id);
     });
 
     it('should return [] if user_id not found', function* () {
@@ -94,13 +94,13 @@ describe('server/service/proxy', function () {
   describe('updateAsync', function () {
     it('should update mark success', function* () {
       let mark = random.proxy.getMark();
-      proxy_with_tls = yield ProxyService.updateAsync(proxy_with_tls.id, {mark});
+      proxy_with_tls = yield ProxyService.updateAsync(proxy_with_tls.proxy_id, {mark});
       expect(proxy_with_tls.mark).to.equal(mark);
     });
 
     it('should update cert success', function* () {
       let cert = random.proxy.getCert();
-      proxy_without_tls = yield ProxyService.updateAsync(proxy_without_tls.id, {cert});
+      proxy_without_tls = yield ProxyService.updateAsync(proxy_without_tls.proxy_id, {cert});
       expect(proxy_without_tls.cert).to.equal(cert);
     });
 
@@ -113,13 +113,13 @@ describe('server/service/proxy', function () {
   describe('removeAsync', function () {
     it('should remove proxy success', function* () {
       yield utility.removeTestProxyAsync(proxy_without_tls);
-      let res = yield ProxyService.getAsync(proxy_without_tls.id);
+      let res = yield ProxyService.getAsync(proxy_without_tls.proxy_id);
       expect(res).to.be.false;
     });
 
     it('should remove proxy with tls success', function* () {
       yield utility.removeTestProxyAsync(proxy_with_tls);
-      let res = yield ProxyService.getAsync(proxy_with_tls.id);
+      let res = yield ProxyService.getAsync(proxy_with_tls.proxy_id);
       expect(res).to.be.false;
     });
 

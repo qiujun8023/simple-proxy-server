@@ -41,7 +41,7 @@ action.get = function* (req, res) {
 // 改
 action.post = function* (req, res) {
   let user_id = req.session.user.user_id;
-  let proxy_id = req.body.id;
+  let proxy_id = req.body.proxy_id;
 
   // 判断数据存在及是否拥有修改权限
   let proxy = yield ProxyService.getAsync(proxy_id);
@@ -79,7 +79,7 @@ action.put = function* (req, res) {
 // 删
 action.delete = function* (req, res) {
   let user_id = req.session.user.user_id;
-  let proxy_id = req.query.id;
+  let proxy_id = req.query.proxy_id;
 
   // 判断数据存在及是否拥有修改权限
   let proxy = yield ProxyService.getAsync(proxy_id);

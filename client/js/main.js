@@ -67,7 +67,7 @@
       }
       $scope.loading = true;
       $http.delete('/action', {
-        params: {id: item.id},
+        params: {proxy_id: item.proxy_id},
       }).success(function () {
         $scope.loading = false;
         $scope.getList();

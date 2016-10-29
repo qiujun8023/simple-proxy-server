@@ -3,15 +3,16 @@
 const config = require('config');
 
 const routers = require('../router');
+const utils = require('../lib/utils');
 const errors = require('../lib/errors');
 const express = require('../lib/express');
 
 let router = express.Router();
 
-// 判断是否需要开启 HTTPS
+// 强制 HTTPS
 router.use(function (req, res, next) {
   if (config.env !== 'test' && !req.secure && config.https.enable) {
-    return res.redirect(`https://${req.hostname}${req.url}`);
+    return res.redirect(utils.getBaseHttpsUrl() + req.url);
   }
   next();
 });
@@ -25,7 +26,7 @@ router.get('/wechat/oauth', wechat.oauth);
 router.get('/wechat/callback', wechat.callback);
 router.get('/wechat/logout', wechat.logout);
 
-// 处理API请求
+// 处理 API 请求
 let action = routers.action;
 router.all('/action', action.auth);
 router.get('/action', action.get);

@@ -7,6 +7,7 @@ const config = require('config');
 
 const redis = require('../lib/redis')('proxy');
 const ProxyModel = require('../model').Proxy;
+const UserModel = require('../model').User;
 
 exports = module.exports = {};
 
@@ -18,7 +19,7 @@ exports.SNIAsync = function* (domain) {
     key = config.https.key;
     cert = config.https.cert;
   } else {
-    let proxy = yield this.getByDomainAsync(domain);
+    let proxy = yield this.getNormalByDomainAsync(domain);
     key = proxy.key;
     cert = proxy.cert;
   }
@@ -26,28 +27,34 @@ exports.SNIAsync = function* (domain) {
   return tls.createSecureContext({key, cert});
 };
 
-// 通过域名设置缓存
+// 统一前缀
+exports._cachePrefix = 'domain:';
+
+// 通过域名设置代理缓存
 exports._setCacheByDomainAsync = function* (domain, options) {
-  return yield redis.set(domain, JSON.stringify(options));
+  let key = this._cachePrefix + domain;
+  return yield redis.set(key, JSON.stringify(options), 'EX', 300);
 };
 
-// 通过域名删除缓存
+// 通过域名删除代理缓存
 exports._removeCacheByDomainAsync = function* (domain) {
-  return yield redis.del(domain);
+  let key = this._cachePrefix + domain;
+  return yield redis.del(key);
 };
 
-// 通过域名读取缓存
+// 通过域名读取代理缓存
 exports._getCacheByDomainAsync = function* (domain) {
-  return JSON.parse(yield redis.get(domain));
+  let key = this._cachePrefix + domain;
+  return JSON.parse(yield redis.get(key));
 };
 
-// 增加
+// 增加代理
 exports.addAsync = function* (options) {
   let proxy = yield ProxyModel.create(options);
   return _.isEmpty(proxy) ? false : proxy.id;
 };
 
-// 删
+// 删除代理
 exports.removeAsync = function* (id) {
   let proxy = yield this._getAsync(id);
   if (_.isEmpty(proxy)) {
@@ -59,7 +66,7 @@ exports.removeAsync = function* (id) {
   return proxy.destroy();
 };
 
-// 改
+// 更新代理
 exports.updateAsync = function* (id, options) {
   let proxy = yield this._getAsync(id);
   if (_.isEmpty(proxy)) {
@@ -74,14 +81,14 @@ exports.updateAsync = function* (id, options) {
   return proxy;
 };
 
-// 查
+// 通过主键查询
 exports._getAsync = function* (id) {
-  return yield ProxyModel.findOne({
-    where: {id},
+  return yield ProxyModel.findById(id, {
+    include: [UserModel],
   });
 };
 
-// 通过 ID 获取一个结果
+// 通过主键查询
 exports.getAsync = function* (id) {
   let proxy = yield this._getAsync(id);
   if (_.isEmpty(proxy)) {
@@ -91,7 +98,21 @@ exports.getAsync = function* (id) {
   return proxy.get({plain: true});
 };
 
-// 通过域名获取一个结果
+// 通过域名查询可以提供代理
+exports.getNormalByDomainAsync = function* (domain, dont_cache) {
+  let proxy = yield this.getByDomainAsync(domain, dont_cache);
+  if (!proxy) {
+    return false;
+  } else if (proxy.is_paused) {
+    return false;
+  } else if (proxy.user && proxy.user.is_locked) {
+    return false;
+  }
+
+  return proxy;
+};
+
+// 通过域名查询
 exports.getByDomainAsync = function* (domain, dont_cache) {
   // 从缓存中读取
   if (!dont_cache) {
@@ -102,8 +123,10 @@ exports.getByDomainAsync = function* (domain, dont_cache) {
     }
   }
 
+  // 从数据中查询
   let proxy = yield ProxyModel.findOne({
     where: {domain},
+    include: [UserModel],
   });
   if (_.isEmpty(proxy)) {
     return false;
@@ -112,6 +135,8 @@ exports.getByDomainAsync = function* (domain, dont_cache) {
   // 写入缓存
   proxy = proxy.get({plain: true});
   yield this._setCacheByDomainAsync(proxy.domain, proxy);
+
+  proxy.is_cache = false;
   return proxy;
 };
 

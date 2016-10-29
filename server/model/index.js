@@ -8,3 +8,11 @@ require('moder')(__dirname, {
 });
 
 exports.Proxy.sync();
+exports.User.sync();
+
+exports.User.hasMany(exports.Proxy, {
+  foreignKey: 'user_id',
+});
+exports.Proxy.belongsTo(exports.User, {
+  foreignKey: 'user_id',
+});

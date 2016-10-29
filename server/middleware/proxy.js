@@ -3,6 +3,7 @@
 const config = require('config');
 const httpProxy = require('http-proxy');
 
+const utils = require('../lib/utils');
 const errors = require('../lib/errors');
 const express = require('../lib/express');
 const ProxyService = require('../service').Proxy;
@@ -18,9 +19,9 @@ router.use(function* (req, res, next) {
   }
 
   // 不存在的解析，重定向到管理后台
-  let proxy = yield ProxyService.getByDomainAsync(hostname);
+  let proxy = yield ProxyService.getNormalByDomainAsync(hostname);
   if (!proxy) {
-    return res.redirect(`http://${config.domain}`);
+    return res.redirect(utils.getBaseHttpUrl());
   }
 
   // 判断是否需要重定向

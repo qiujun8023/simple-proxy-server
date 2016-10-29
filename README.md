@@ -16,9 +16,9 @@
 
 ## 截图
 
-![截图](/client/imgs/screenshot-1.png)
+![截图](/client/img/screenshot-1.png)
 
-![截图](/client/imgs/screenshot-2.png)
+![截图](/client/img/screenshot-2.png)
 
 ## 主要用途
 

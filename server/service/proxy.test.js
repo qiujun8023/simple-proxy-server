@@ -1,5 +1,6 @@
 'use strict';
 
+const _ = require('lodash');
 const config = require('config');
 const expect = require('chai').expect;
 
@@ -49,7 +50,7 @@ describe('server/service/proxy', function () {
       } catch (e) {
         return;
       }
-      throw new Error('should throw snia error but not');
+      throw new Error('should throw SNIA error but not');
     });
 
     it('should return ctx when key and cert exist', function* () {
@@ -60,7 +61,8 @@ describe('server/service/proxy', function () {
   describe('getByDomainAsync', function () {
     it('should get data from mysql', function* () {
       let proxy = yield ProxyService.getByDomainAsync(proxy_with_tls.domain, true);
-      expect(proxy).to.deep.equal(proxy_with_tls);
+      let tmp_proxy = _.assign(proxy_with_tls, {is_cache: false});
+      expect(proxy).to.deep.equal(tmp_proxy);
     });
 
     it('should get data from cache', function* () {
@@ -79,7 +81,7 @@ describe('server/service/proxy', function () {
   describe('findAsync', function () {
     it('should find by user_id success', function* () {
       let list = yield ProxyService.findAsync({user_id: proxy_with_tls.user_id});
-      expect(list).to.deep.equal([proxy_with_tls]);
+      expect(list[0].id).to.deep.equal(proxy_with_tls.id);
     });
 
     it('should return [] if user_id not found', function* () {

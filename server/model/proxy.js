@@ -13,6 +13,7 @@ module.exports = sequelize.define('proxy', {
   },
   user_id: {
     type: Sequelize.STRING(30),
+    allowNull: false,
     comment: '用户 id',
   },
   mark: {
@@ -59,7 +60,25 @@ module.exports = sequelize.define('proxy', {
     type: Sequelize.TEXT,
     comment: '私钥',
   },
+  is_paused: {
+    type: Sequelize.ENUM,
+    values: ['Y', 'N'],
+    defaultValue: 'N',
+    allowNull: false,
+    comment: '是否暂停',
+    get: function () {
+      let is_paused = this.getDataValue('is_paused');
+      return is_paused === 'Y';
+    },
+    set: function (is_paused) {
+      this.setDataValue('is_paused', is_paused ? 'Y' : 'N');
+    },
+  },
 }, {
+  name: {
+    singular: 'proxy',
+    plural: 'proxies',
+  },
   underscored: true,
   freezeTableName: true,
 });

@@ -151,6 +151,14 @@ qPwwtT6YxeGBxJXhP1k7sZ1arsZH+PnGCvaiLPMKX3OqoWx2j7ZAEQdebpAd28JH
   env: 'development',
   debug: true,
 
+  proxy_log: {
+    save_days: 30, // 访问日志保存天数，为 0 则不保存
+    cron: { // https://github.com/kelektiv/node-cron
+      set_location: '0 */5 * * * *', // 更新数据库中 IP 所在地
+      data_clean: '0 3 * * * *', // 清理过期日志
+    },
+  },
+
   session: {
     secret: 'proxy_secret',
     name: 'session',

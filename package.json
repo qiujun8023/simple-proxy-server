@@ -6,6 +6,7 @@
   "main": "server/app.js",
   "scripts": {
     "dev": "nodemon -e js,yaml -x 'node --harmony' server/app.js",
+    "cron": "nodemon -e js,yaml -x 'node --harmony' server/cron.js",
     "lint": "./node_modules/.bin/eslint --ext .js server",
     "test": "NODE_ENV=test ./node_modules/.bin/mocha --harmony --require co-mocha --colors server/lib/test/mocha_bootload 'server/**/*.test.js'",
     "cover": "NODE_ENV=test ./node_modules/.bin/nyc --reporter html --reporter text ./node_modules/.bin/mocha --harmony --require co-mocha --colors server/lib/test/mocha_bootload 'server/**/*.test.js'",
@@ -38,6 +39,7 @@
     "co-request": "^1.0.0",
     "config": "^1.21.0",
     "connect-redis": "^3.1.0",
+    "cron": "^1.1.1",
     "express": "^4.13.4",
     "express-ko": "^1.0.1",
     "express-session": "^1.14.0",

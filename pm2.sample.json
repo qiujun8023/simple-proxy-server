@@ -1,16 +1,30 @@
 {
-  "name": "simple-proxy",
-  "script": "server/app.js",
-  "log_date_format": "YYYY-MM-DD HH:mm Z",
-  "exec_mode": "cluster",
-  "node_args": "--harmony",
-  "instances": 4,
-  "min_uptime": "200s",
-  "max_memory_restart": "500M",
-  "watch": false,
-  "merge_logs": true,
-  "autorestart": true,
-  "_": "_",
-  "error_file": "/tmp/simple-proxy.stderr.log",
-  "out_file": "/tmp/simple-proxy.stdout.log"
+  "apps": [
+    {
+      "name": "simple-proxy",
+      "script": "server/app.js",
+      "log_date_format": "YYYY-MM-DD HH:mm Z",
+      "exec_mode": "cluster",
+      "node_args": "--harmony",
+      "instances": 2,
+      "min_uptime": "200s",
+      "max_memory_restart": "500M",
+      "watch": false,
+      "merge_logs": true,
+      "autorestart": true,
+      "error_file": "/tmp/simple-proxy.stderr.log",
+      "out_file": "/tmp/simple-proxy.stdout.log"
+    },
+    {
+      "name": "simple-proxy-cron",
+      "script": "server/cron.js",
+      "log_date_format": "YYYY-MM-DD HH:mm Z",
+      "node_args": "--harmony",
+      "watch": false,
+      "merge_logs": true,
+      "autorestart": true,
+      "error_file": "/tmp/simple-proxy-cron.stderr.log",
+      "out_file": "/tmp/simple-proxy-cron.stdout.log"
+    }
+  ]
 }

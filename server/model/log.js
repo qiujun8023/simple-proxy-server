@@ -21,11 +21,11 @@ module.exports = sequelize.define('log', {
     allowNull: false,
     comment: '客户端 IP',
   },
-  province: {
+  region: {
     type: Sequelize.STRING,
     allowNull: true,
     defaultValue: null,
-    comment: '所在省份',
+    comment: '所在地区',
   },
   city: {
     type: Sequelize.STRING,

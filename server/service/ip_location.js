@@ -1,6 +1,5 @@
 'use strict';
 
-const _ = require('lodash');
 const request = require('co-request');
 
 const redis = require('../lib/redis')('proxy');

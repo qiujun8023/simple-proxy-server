@@ -31,9 +31,9 @@ exports.SNIAsync = function* (domain) {
 exports._cachePrefix = 'domain:';
 
 // 通过域名设置代理缓存
-exports._setCacheByDomainAsync = function* (domain, options) {
+exports._setCacheByDomainAsync = function* (domain, data) {
   let cache_key = this._cachePrefix + domain;
-  return yield redis.set(cache_key, JSON.stringify(options), 'EX', 300);
+  return yield redis.set(cache_key, JSON.stringify(data), 'EX', 300);
 };
 
 // 通过域名删除代理缓存
@@ -49,8 +49,8 @@ exports._getCacheByDomainAsync = function* (domain) {
 };
 
 // 增加代理
-exports.addAsync = function* (options) {
-  let proxy = yield ProxyModel.create(options);
+exports.addAsync = function* (data) {
+  let proxy = yield ProxyModel.create(data);
   return _.isEmpty(proxy) ? false : proxy.proxy_id;
 };
 
@@ -67,13 +67,13 @@ exports.removeAsync = function* (proxy_id) {
 };
 
 // 更新代理
-exports.updateAsync = function* (proxy_id, options) {
+exports.updateAsync = function* (proxy_id, data) {
   let proxy = yield this._getAsync(proxy_id);
   if (_.isEmpty(proxy)) {
     return false;
   }
 
-  proxy = yield proxy.update(options);
+  proxy = yield proxy.update(data);
   proxy = proxy.get({plain: true});
 
   // 更新缓存
@@ -141,10 +141,8 @@ exports.getByDomainAsync = function* (domain, dont_cache) {
 };
 
 // 获取多个结果
-exports.findAsync = function* (options) {
-  let list = yield ProxyModel.findAll({
-    where: options,
-  });
+exports.findAsync = function* (where) {
+  let list = yield ProxyModel.findAll({where});
   if (_.isEmpty(list)) {
     return [];
   }

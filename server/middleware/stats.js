@@ -1,6 +1,7 @@
 'use strict';
 
 const co = require('co');
+const config = require('config');
 const requestStats = require('request-stats');
 
 const LogService = require('../service').Log;
@@ -32,11 +33,14 @@ let log = function* (info) {
 };
 
 let stats = function (req, res, next) {
+  // 关闭日志
+  if (config.proxy_log.save_days <= 0) {
+    return next();
+  }
+
   // 监听事件，记录日志
   requestStats(req, res, function (info) {
-    co.wrap(log)(info).catch(function (err) {
-      logger.error(err);
-    });
+    co.wrap(log)(info).catch(logger.error);
   });
 
   next();

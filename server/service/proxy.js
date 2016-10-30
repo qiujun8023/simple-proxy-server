@@ -32,20 +32,20 @@ exports._cachePrefix = 'domain:';
 
 // 通过域名设置代理缓存
 exports._setCacheByDomainAsync = function* (domain, options) {
-  let key = this._cachePrefix + domain;
-  return yield redis.set(key, JSON.stringify(options), 'EX', 300);
+  let cache_key = this._cachePrefix + domain;
+  return yield redis.set(cache_key, JSON.stringify(options), 'EX', 300);
 };
 
 // 通过域名删除代理缓存
 exports._removeCacheByDomainAsync = function* (domain) {
-  let key = this._cachePrefix + domain;
-  return yield redis.del(key);
+  let cache_key = this._cachePrefix + domain;
+  return yield redis.del(cache_key);
 };
 
 // 通过域名读取代理缓存
 exports._getCacheByDomainAsync = function* (domain) {
-  let key = this._cachePrefix + domain;
-  return JSON.parse(yield redis.get(key));
+  let cache_key = this._cachePrefix + domain;
+  return JSON.parse(yield redis.get(cache_key));
 };
 
 // 增加代理

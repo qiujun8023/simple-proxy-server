@@ -72,6 +72,8 @@ module.exports = sequelize.define('user', {
     },
   },
 }, {
+  createdAt: 'regist_at',
+  updatedAt: 'login_at',
   underscored: true,
   freezeTableName: true,
 });

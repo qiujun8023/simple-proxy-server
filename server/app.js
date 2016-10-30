@@ -11,8 +11,15 @@ const config = require('config');
 const bodyParser = require('body-parser');
 
 const app = require('./lib/express')();
+const utils = require('./lib/utils');
 const mws = require('./middleware');
 const ProxyService = require('./service').Proxy;
+
+// 关闭 x-powered-by
+app.set('x-powered-by', false);
+
+// 统计
+app.use(mws.stats());
 
 // 处理代理
 app.use(mws.proxy());
@@ -36,8 +43,9 @@ if (!module.parent) {
   let http_server = http.createServer(app);
   http_server.listen(config.http.port, config.host);
   // eslint-disable-next-line
-  console.log(`Server listen on http://${config.domain}:${config.http.port}`);
+  console.log(`Server listen on ${utils.getBaseHttpUrl()}`);
 
+  // 监听 HTTPS
   if (config.https.enable) {
     let https_server = https.createServer({
       // HTTPS SNI 回调
@@ -49,7 +57,7 @@ if (!module.parent) {
     }, app);
     https_server.listen(config.https.port, config.host);
     // eslint-disable-next-line
-    console.log(`Server listen on https://${config.domain}:${config.https.port}`);
+    console.log(`Server listen on ${utils.getBaseHttpsUrl()}`);
   }
 } else {
   module.exports = http.createServer(app);

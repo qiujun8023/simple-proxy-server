@@ -31,10 +31,10 @@ router.use(function* (req, res, next) {
     return res.redirect(`https://${req.hostname}${req.url}`);
   }
 
-  // 发送源 IP 信息
-  let remote_address = req.connection.remoteAddress;
-  req.headers['x-real-ip'] = remote_address;
-  req.headers['x-forwarded-for'] = remote_address;
+  // 设置请求头
+  req.headers['x-proxy-id'] = proxy.proxy_id;
+  req.headers['x-real-ip'] = req.ip;
+  req.headers['x-forwarded-for'] = req.ip;
   req.headers['x-forwarded-proto'] = req.protocol;
 
   // 设置回源域名，设置当前端口
@@ -52,7 +52,7 @@ router.use(function* (req, res, next) {
     req.rawHeaders.push(key, req.headers[key]);
   }
 
-  // 代理访问
+  // 构造访问信息
   let options = {};
   if (proxy.target_type === 'HTTPS') {
     options.secure = true;
@@ -61,8 +61,8 @@ router.use(function* (req, res, next) {
     options.target = `http://${proxy.target}`;
   }
 
-  proxy_server.web(req, res, options);
-  proxy_server.on('error', function (err) {
+  // 代理访问
+  proxy_server.web(req, res, options, function (err) {
     next(new errors.BadGateway(err.message));
   });
 });

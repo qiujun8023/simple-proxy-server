@@ -57,6 +57,20 @@ module.exports = sequelize.define('user', {
     allowNull: false,
     comment: '头像',
   },
+  is_admin: {
+    type: Sequelize.ENUM,
+    values: ['Y', 'N'],
+    defaultValue: 'N',
+    allowNull: false,
+    comment: '是否管理员',
+    get: function () {
+      let is_admin = this.getDataValue('is_admin');
+      return is_admin === 'Y';
+    },
+    set: function (is_admin) {
+      this.setDataValue('is_admin', is_admin ? 'Y' : 'N');
+    },
+  },
   is_locked: {
     type: Sequelize.ENUM,
     values: ['Y', 'N'],

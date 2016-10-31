@@ -43,6 +43,7 @@
     "express": "^4.13.4",
     "express-ko": "^1.0.1",
     "express-session": "^1.14.0",
+    "glob": "^7.1.1",
     "http-proxy": "^1.15.1",
     "ioredis": "^2.3.0",
     "lodash": "^4.15.0",

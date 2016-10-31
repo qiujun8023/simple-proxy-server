@@ -7,7 +7,7 @@ const cron = require('../lib/cron');
 const LogService = require('../service').Log;
 const IpLocationService = require('../service').IpLocation;
 
-// 暂定每五分钟
+// 更新数据库中的地理位置信息
 let set_location = cron(config.proxy_log.cron.set_location, function* () {
   if (config.proxy_log.save_days <= 0) {
     return;
@@ -26,7 +26,7 @@ let set_location = cron(config.proxy_log.cron.set_location, function* () {
   }
 });
 
-// 每小时的 *:03:00 执行任务
+// 清理过期日志
 let data_clean = cron(config.proxy_log.cron.data_clean, function* () {
   if (config.proxy_log.save_days <= 0) {
     return;

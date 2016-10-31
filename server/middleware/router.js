@@ -1,11 +1,14 @@
 'use strict';
 
+const path = require('path');
+
+const glob = require('glob');
 const config = require('config');
 
-const routers = require('../router');
 const utils = require('../lib/utils');
 const errors = require('../lib/errors');
 const express = require('../lib/express');
+const isTest = require('../lib/test/is_test');
 
 let router = express.Router();
 
@@ -14,25 +17,28 @@ router.use(function (req, res, next) {
   if (config.env !== 'test' && !req.secure && config.https.enable) {
     return res.redirect(utils.getBaseHttpsUrl() + req.url);
   }
+
   next();
+});
+
+// 添加所有的API路由
+let cwd = path.join(__dirname, '..');
+glob.sync('api/**/*.js', {cwd}).map(function (file) {
+  if (isTest(file)) {
+    return;
+  }
+
+  let prefix = '/' + file.slice(0, -'.js'.length);
+  let location = path.join(cwd, file);
+  let handler = require(location);
+  router.use(prefix, handler);
 });
 
 // 处理静态目录
 router.use(express.static(config.client_dir));
-
-// 微信授权相关
-let wechat = routers.wechat;
-router.get('/wechat/oauth', wechat.oauth);
-router.get('/wechat/callback', wechat.callback);
-router.get('/wechat/logout', wechat.logout);
-
-// 处理 API 请求
-let action = routers.action;
-router.all('/action', action.auth);
-router.get('/action', action.get);
-router.post('/action', action.post);
-router.put('/action', action.put);
-router.delete('/action', action.delete);
+router.get('/*', function (req, res) {
+  res.sendFile(path.resolve(config.client_dir, 'index.html'));
+});
 
 // 404 错误
 router.use(function () {

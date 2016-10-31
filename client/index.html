@@ -16,7 +16,7 @@
         <img class="ui avatar image" ng-src="{{user.avatar || 'img/logo.png'}}">
         <span ng-bind="user.name || '游客'"></span>
       </div>
-      <a class="icon pointer item" href="/wechat/logout">
+      <a class="icon pointer item" ng-click="logout()">
         <i class="sign out icon"></i>
       </a>
     </div>
@@ -91,7 +91,7 @@
   </div>
   <form class="ui small modal form">
     <i class="close icon"></i>
-    <div class="header" ng-bind="{'PUT':'新增反向代理', 'POST':'编辑反向代理'}[edit_item.method]"></div>
+    <div class="header" ng-bind="{'POST':'新增反向代理', 'PUT':'编辑反向代理'}[edit_item.method]"></div>
     <div class="content">
       <div class="field">
         <label>名称</label>

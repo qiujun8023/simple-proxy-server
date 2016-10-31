@@ -2,27 +2,27 @@
 
 const config = require('config');
 
-describe('server/router/wechat', function () {
-  describe('oauth', function () {
+describe('server/api/wechat', function () {
+  describe('get /api/wechat/oauth', function () {
     it('should return javascript redirect', function* () {
       yield api
-        .get('/wechat/oauth')
+        .get('/api/wechat/oauth')
         .set('Host', config.domain)
         .expect(200);
     });
   });
 
-  describe('callback', function () {
+  describe('get /api/wechat/callback', function () {
     it('should throw bad request error if auth_code not found', function* () {
       yield api
-        .get('/wechat/callback')
+        .get('/api/wechat/callback')
         .set('Host', config.domain)
         .expect(400);
     });
 
     it('should throw System error with invalid auth_code', function* () {
       yield api
-        .get('/wechat/callback')
+        .get('/api/wechat/callback')
         .set('Host', config.domain)
         .query({
           auth_code: 'invalid auth_code',
@@ -31,15 +31,10 @@ describe('server/router/wechat', function () {
     });
   });
 
-  describe('logout', function () {
+  describe('post /api/wechat/logout', function () {
     it('should logout success', function* () {
       yield api
-        .get('/wechat/logout')
-        .set('Host', config.domain)
-        .expect(302);
-
-      yield api
-        .get('/action')
+        .post('/api/wechat/logout')
         .set('Host', config.domain)
         .expect(401);
     });

@@ -5,21 +5,21 @@ const expect = require('chai').expect;
 
 const random = require('../lib/test/random');
 
-describe('server/router/action', function () {
+describe('server/api/proxy', function () {
   let user_id = random.proxy.getUserId();
   let list;
 
   describe('auth', function () {
     it('should return 401 if need login', function* () {
       yield api
-        .get('/action')
+        .get('/api/proxy')
         .set('Host', config.domain)
         .expect(401);
     });
 
     it('should allow if set x-user-id', function* () {
       yield api
-        .get('/action')
+        .get('/api/proxy')
         .set('Host', config.domain)
         .use(function (req) {
           req.set('x-user-id', user_id);
@@ -29,16 +29,16 @@ describe('server/router/action', function () {
 
     it('should allow if set session', function* () {
       yield api
-        .get('/action')
+        .get('/api/proxy')
         .set('Host', config.domain)
         .expect(200);
     });
   });
 
-  describe('put', function () {
+  describe('post /api/proxy', function () {
     it('should return forbidden if domain not allow', function* () {
       yield api
-        .put('/action')
+        .post('/api/proxy')
         .set('Host', config.domain)
         .send({
           mark: random.proxy.getMark(),
@@ -51,7 +51,7 @@ describe('server/router/action', function () {
 
     it('should add proxy success', function* () {
       let res = yield api
-        .put('/action')
+        .post('/api/proxy')
         .set('Host', config.domain)
         .send({
           mark: random.proxy.getMark(),
@@ -65,10 +65,10 @@ describe('server/router/action', function () {
     });
   });
 
-  describe('get', function () {
+  describe('get /api/proxy', function () {
     it('should get proxy success', function* () {
       let res = yield api
-        .get('/action')
+        .get('/api/proxy')
         .set('Host', config.domain)
         .expect(200);
 
@@ -79,10 +79,10 @@ describe('server/router/action', function () {
     });
   });
 
-  describe('update', function () {
+  describe('put /api/proxy', function () {
     it('should update failture if data not found', function* () {
       yield api
-        .post('/action')
+        .put('/api/proxy')
         .set('Host', config.domain)
         .send({
           proxy_id: -1,
@@ -93,7 +93,7 @@ describe('server/router/action', function () {
 
     it('should return forbidden if domain not allow', function* () {
       yield api
-        .post('/action')
+        .put('/api/proxy')
         .set('Host', config.domain)
         .send({
           proxy_id: list[0].proxy_id,
@@ -105,7 +105,7 @@ describe('server/router/action', function () {
     it('should update proxy success', function* () {
       let mark = random.proxy.getMark();
       yield api
-        .post('/action')
+        .put('/api/proxy')
         .set('Host', config.domain)
         .send({
           proxy_id: list[0].proxy_id,
@@ -114,7 +114,7 @@ describe('server/router/action', function () {
         .expect(200);
 
       let res = yield api
-        .get('/action')
+        .get('/api/proxy')
         .set('Host', config.domain)
         .expect(200);
       list = res.body.list;
@@ -123,10 +123,10 @@ describe('server/router/action', function () {
     });
   });
 
-  describe('delete', function () {
+  describe('delete /api/proxy', function () {
     it('should delete failture if data not found', function* () {
       yield api
-        .delete('/action')
+        .delete('/api/proxy')
         .set('Host', config.domain)
         .query({
           proxy_id: -1,
@@ -136,7 +136,7 @@ describe('server/router/action', function () {
 
     it('should delete proxy success', function* () {
       yield api
-        .delete('/action')
+        .delete('/api/proxy')
         .set('Host', config.domain)
         .query({
           proxy_id: list[0].proxy_id,
@@ -144,7 +144,7 @@ describe('server/router/action', function () {
         .expect(200);
 
       let res = yield api
-        .get('/action')
+        .get('/api/proxy')
         .set('Host', config.domain)
         .expect(200);
       list = res.body.list;

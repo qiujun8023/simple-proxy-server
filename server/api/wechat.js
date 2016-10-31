@@ -4,26 +4,27 @@ const utils = require('../lib/utils');
 const errors = require('../lib/errors');
 const wechat_api = require('../lib/wechat')('proxy', 'system');
 const UserService = require('../service').User;
+const express = require('../lib/express');
 
-let wechat = module.exports = {};
+let router = module.exports = express.Router();
 
 // 跳转进行 OAuth
 // 由于 OAuth 需要 Referer 不能用 res.redirect
-wechat.oauth = function (req, res) {
-  let redirect;
+router.get('/oauth', function (req, res) {
+  let redirect = '/api/wechat/callback';
   if (req.secure) {
-    redirect = utils.getBaseHttpsUrl() + '/wechat/callback';
+    redirect = utils.getBaseHttpsUrl() + redirect;
   } else {
-    redirect = utils.getBaseHttpUrl() + '/wechat/callback';
+    redirect = utils.getBaseHttpUrl() + redirect;
   }
   let referer = req.headers.referer || null;
   let usertype = 'member';
   let login_url = wechat_api.getLoginURL(redirect, referer, usertype);
   res.send(`<script>window.location.href='${login_url}'</script>`);
-};
+});
 
 // 获取用户信息
-wechat.callback = function* (req, res) {
+router.get('/callback', function* (req, res) {
   let auth_code = req.query.auth_code || '';
   if (!auth_code) {
     throw new errors.BadRequest('微信授权失败...');
@@ -50,10 +51,10 @@ wechat.callback = function* (req, res) {
 
   req.session.user = user;
   res.redirect(req.query.state || '/');
-};
+});
 
 // 注销登陆
-wechat.logout = function (req, res) {
+router.post('/logout', function (req, res) {
   req.session.user = {};
-  res.redirect('/wechat/oauth');
-};
+  throw new errors.Unauthorized('注销登录成功');
+});

@@ -34,6 +34,7 @@ app.use(bodyParser.urlencoded({
 app.use(mws.session());
 
 // 加载路由
+app.use(mws.auth());
 app.use(mws.router());
 
 // 错误处理

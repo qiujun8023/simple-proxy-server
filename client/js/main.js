@@ -16,7 +16,7 @@
 
       switch (status) {
         case 401:
-          window.location.href = '/wechat/oauth';
+          window.location.href = '/api/wechat/oauth';
           break;
         default:
           this.error = data.message;
@@ -27,7 +27,7 @@
     $scope.getList = function () {
       $scope.error = '';
       $scope.loading = true;
-      $http.get('/action').success(function (data) {
+      $http.get('/api/proxy').success(function (data) {
         $scope.loading = false;
         $scope.list = data.list;
         $scope.user = data.user;
@@ -41,10 +41,10 @@
       let edit_item;
       if (item) {
         edit_item = angular.copy(item);
-        edit_item.method = 'POST';
+        edit_item.method = 'PUT';
       } else {
         edit_item = {
-          method: 'PUT',
+          method: 'POST',
           target_type: 'HTTP',
           proxy_type: 'HTTP_ONLY',
         };
@@ -66,7 +66,7 @@
         return false;
       }
       $scope.loading = true;
-      $http.delete('/action', {
+      $http.delete('/api/proxy', {
         params: {proxy_id: item.proxy_id},
       }).success(function () {
         $scope.loading = false;
@@ -102,7 +102,7 @@
 
         edit_item.loading = true;
         $http({
-          url: '/action',
+          url: '/api/proxy',
           method: edit_item.method,
           data: edit_item,
         }).success(function () {
@@ -114,6 +114,12 @@
         return false;
       },
     });
+
+    $scope.logout = function () {
+      $http
+        .post('/api/wechat/logout')
+        .error($scope.error_handle.bind($scope));
+    };
 
     $scope.getList();
   });

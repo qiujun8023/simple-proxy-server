@@ -22,7 +22,7 @@ let log = function* (info) {
     status: info.res.status,
     method: info.req.method,
     path: info.req.path,
-    ua: info.req.headers['user-agent'],
+    ua: info.req.headers['user-agent'] || '',
     bytes: bytes,
     time: info.time,
     speed: bytes * 8 / info.time,

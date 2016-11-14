@@ -65,12 +65,12 @@ module.exports = sequelize.define('log', {
     comment: 'HTTP 方法',
   },
   path: {
-    type: Sequelize.STRING,
+    type: Sequelize.TEXT,
     allowNull: false,
     comment: '请求路径',
   },
   ua: {
-    type: Sequelize.STRING,
+    type: Sequelize.TEXT,
     allowNull: false,
     comment: '客户端',
   },

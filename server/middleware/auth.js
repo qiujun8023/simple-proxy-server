@@ -13,8 +13,8 @@ let auth = function (req, res, next) {
   let user_id = req.get('x-user-id');
   if (user_id) {
     req.session.user = {
-        user_id: user_id,
-        is_admin: true,
+      user_id: user_id,
+      is_admin: true,
     };
   }
 

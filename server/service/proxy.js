@@ -1,5 +1,6 @@
 'use strict';
 
+const fs = require('fs');
 const tls = require('tls');
 
 const _ = require('lodash');
@@ -11,20 +12,24 @@ const UserModel = require('../model').User;
 
 exports = module.exports = {};
 
-exports.SNIAsync = function* (domain) {
-  let key;
-  let cert;
+if (config.https.enable) {
+  exports._key = fs.readFileSync(config.https.key);
+  exports._cert = fs.readFileSync(config.https.cert);
+}
 
+exports.SNIAsync = function* (domain) {
   if (domain === config.domain) {
-    key = config.https.key;
-    cert = config.https.cert;
-  } else {
-    let proxy = yield this.getNormalByDomainAsync(domain);
-    key = proxy.key;
-    cert = proxy.cert;
+    return tls.createSecureContext({
+      key: exports._key,
+      cert: exports._cert,
+    });
   }
 
-  return tls.createSecureContext({key, cert});
+  let proxy = yield this.getNormalByDomainAsync(domain);
+  return tls.createSecureContext({
+    key: proxy.key,
+    cert: proxy.cert,
+  });
 };
 
 // 统一前缀

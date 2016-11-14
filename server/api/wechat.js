@@ -54,7 +54,7 @@ router.get('/callback', function* (req, res) {
 });
 
 // 注销登陆
-router.post('/logout', function (req, res) {
+router.post('/logout', function (req) {
   req.session.user = {};
   throw new errors.Unauthorized('注销登录成功');
 });

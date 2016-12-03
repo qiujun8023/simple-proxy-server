@@ -1,6 +1,6 @@
 {
   "name": "simple-proxy",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "engineStrict": true,
   "description": "简易反向代理，支持 WEB 界面管理，支持 HTTPS",
   "main": "server/app.js",

@@ -1,6 +1,8 @@
 FROM node:4.4.4
 MAINTAINER qiujun i@qiujun.me
 
+ENV NODE_ENV production
+
 RUN npm config set registry https://registry.npm.taobao.org
 RUN npm install -g pm2 && pm2 dump
 

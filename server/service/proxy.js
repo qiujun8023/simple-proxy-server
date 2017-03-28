@@ -50,7 +50,8 @@ exports._removeCacheByDomainAsync = function* (domain) {
 // 通过域名读取代理缓存
 exports._getCacheByDomainAsync = function* (domain) {
   let cache_key = this._cachePrefix + domain;
-  return JSON.parse(yield redis.get(cache_key));
+  let cache = yield redis.get(cache_key);
+  return cache ? JSON.parse(cache) : null;
 };
 
 // 增加代理

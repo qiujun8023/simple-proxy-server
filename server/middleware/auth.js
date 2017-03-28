@@ -1,8 +1,10 @@
 'use strict';
 
 const errors = require('../lib/errors');
+const utils = require('../lib/utils');
 
 let white_list = [
+  '/api/config',
   '/api/wechat/oauth',
   '/api/wechat/callback',
   '/api/wechat/logout',
@@ -40,7 +42,10 @@ let auth = function (req, res, next) {
     return next();
   }
 
-  throw new errors.Unauthorized('您需要登陆登陆才能访问');
+
+  let referer = req.headers.referer || null;
+  let OAuthConfig = utils.getOAuthConfig(req.secure, referer);
+  throw new errors.Unauthorized('您需要登陆登陆才能访问', null, OAuthConfig);
 };
 
 module.exports = () => auth;

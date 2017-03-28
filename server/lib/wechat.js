@@ -1,53 +1,25 @@
 'use strict';
 
-const co = require('co');
 const config = require('config');
 const Promise = require('bluebird');
 const API = require('wechat-enterprise-api');
 
-const redis = require('../lib/redis')('wechat');
+const redis = require('../lib/redis')('proxy');
 
-let get_token = function (wechat_name) {
-  return function (callback) {
-    co(function* () {
-      let key = `${wechat_name}:access_token`;
-      return yield redis.get(key);
-    }).then(function (token) {
-      callback(null, JSON.parse(token));
-    }).catch(callback);
-  };
+const TOKEN_CACHE_KEY = 'wechat:access_token';
+
+let get_token = function (callback) {
+  redis.get(TOKEN_CACHE_KEY, function (err, result) {
+    callback(err, JSON.parse(result));
+  });
 };
 
-let set_token = function (wechat_name) {
-  return function (token, callback) {
-    co(function* () {
-      let key = `${wechat_name}:access_token`;
-      let time = token.expiresIn - 600;
-      let data = JSON.stringify(token);
-      yield redis.setex(key, time, data);
-    }).then(function () {
-      callback(null);
-    }).catch(callback);
-  };
+let set_token = function (token, callback) {
+  let time = token.expiresIn - 600;
+  let data = JSON.stringify(token);
+  redis.setex(TOKEN_CACHE_KEY, time, data, callback);
 };
 
-let connections = {};
-for (let wechat_name in config.wechat) {
-  let wechat = config.wechat[wechat_name];
-  connections[wechat_name] = {};
-  for (let app_name in wechat.apps) {
-    let app = wechat.apps[app_name];
-    let api = new API(
-      wechat.corpid,
-      wechat.secret,
-      app.agentid,
-      get_token(wechat_name),
-      set_token(wechat_name)
-    );
-    connections[wechat_name][app_name] = Promise.promisifyAll(api);
-  }
-}
-
-module.exports = function getWechat(wechat_name, app_name) {
-  return connections[wechat_name][app_name];
-};
+let {corp_id, secret} = config.wechat;
+let api = new API(corp_id, secret, 0, get_token, set_token);
+module.exports = Promise.promisifyAll(api);

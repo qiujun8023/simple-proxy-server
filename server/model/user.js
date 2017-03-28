@@ -2,7 +2,7 @@
 
 const Sequelize = require('sequelize');
 
-const sequelize = require('../lib/sequelize')('proxy');
+const sequelize = require('../lib/sequelize');
 
 module.exports = sequelize.define('user', {
   user_id: {

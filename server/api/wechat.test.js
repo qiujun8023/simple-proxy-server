@@ -3,15 +3,6 @@
 const config = require('config');
 
 describe('server/api/wechat', function () {
-  describe('get /api/wechat/oauth', function () {
-    it('should return javascript redirect', function* () {
-      yield api
-        .get('/api/wechat/oauth')
-        .set('Host', config.domain)
-        .expect(200);
-    });
-  });
-
   describe('get /api/wechat/callback', function () {
     it('should throw bad request error if auth_code not found', function* () {
       yield api

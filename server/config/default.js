@@ -5,9 +5,11 @@ const path = require('path');
 let config = {
   host: '127.0.0.1',
   domain: 'example.com',
+
   http: {
     port: 80,
   },
+
   https: {
     enable: true,
     port: 443,
@@ -20,9 +22,9 @@ let config = {
 
   proxy_log: {
     save_days: 30, // 访问日志保存天数，为 0 则不保存
-    cron: { // https://github.com/kelektiv/node-cron
+    cron: { // 格式为 秒 分 时 天 月 星期
       set_location: '0 */5 * * * *', // 更新数据库中 IP 所在地
-      data_clean: '0 3 * * * *', // 清理过期日志
+      data_clean: '0 3 * * * *',     // 清理过期日志
     },
   },
 
@@ -43,33 +45,21 @@ let config = {
       port: 6379,
       keyPrefix: 'proxy:session:',
     },
-    wechat: {
-      host: '127.0.0.1',
-      port: 6379,
-      keyPrefix: 'proxy:wechat:',
-    },
   },
 
   mysql: {
-    proxy: {
-      poolSize: 5,
-      host: '127.0.0.1',
-      user: 'proxy',
-      password: 'password',
-      database: 'proxy',
-    },
+    poolSize: 5,
+    host: '127.0.0.1',
+    user: 'proxy',
+    password: 'password',
+    database: 'proxy',
+    timezone: '+08:00',
   },
 
   wechat: {
-    proxy: {
-      corpid: 'corpid',
-      secret: 'secret',
-      apps: {
-        system: {
-          agentid: 0,
-        },
-      },
-    },
+    corp_id: 'corp_id', // 企业号 CorpId
+    secret: 'secret',  // 企业号 Secret
+    usertype: 'admin', // member(成员登录)、admin(管理员登录)、all(成员或管理员皆可登录)
   },
 
   logger: {

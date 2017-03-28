@@ -35,16 +35,9 @@ let config = {
   },
 
   redis: {
-    proxy: {
-      host: '127.0.0.1',
-      port: 6379,
-      keyPrefix: 'proxy:',
-    },
-    session: {
-      host: '127.0.0.1',
-      port: 6379,
-      keyPrefix: 'proxy:session:',
-    },
+    host: '127.0.0.1',
+    port: 6379,
+    keyPrefix: 'proxy:',
   },
 
   mysql: {

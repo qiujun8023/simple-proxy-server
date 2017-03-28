@@ -6,7 +6,7 @@ const tls = require('tls');
 const _ = require('lodash');
 const config = require('config');
 
-const redis = require('../lib/redis')('proxy');
+const redis = require('../lib/redis');
 const ProxyModel = require('../model').Proxy;
 const UserModel = require('../model').User;
 

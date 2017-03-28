@@ -9,7 +9,7 @@
     "cron": "nodemon -e js,yaml server/cron.js",
     "lint": "eslint --ext .js server",
     "test": "NODE_ENV=test mocha --require co-mocha --colors server/lib/test/mocha_bootload 'server/**/*.test.js'",
-    "cover": "NODE_ENV=test nyc --reporter=lcov --reporter html --reporter text-summar mocha --require co-mocha --colors server/lib/test/mocha_bootload 'server/**/*.test.js'",
+    "cover": "NODE_ENV=test nyc --reporter=lcov --reporter html --reporter text-summary mocha --require co-mocha --colors server/lib/test/mocha_bootload 'server/**/*.test.js'",
     "start": "pm2 start pm2.json",
     "postmerge": "git submodule update && npm install"
   },

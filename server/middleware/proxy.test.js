@@ -1,5 +1,6 @@
 'use strict';
 
+const config = require('config');
 const random = require('../lib/test/random/proxy');
 const utility = require('../lib/test/utility');
 
@@ -17,6 +18,19 @@ describe('middleware/proxy', function () {
 
   after(function* () {
     yield utility.removeTestProxyAsync(proxy);
+  });
+
+  it('should return next if domain in config', function* () {
+    yield api
+      .get('/')
+      .set('Host', config.domain)
+      .expect(200);
+  });
+
+  it('should return next without host', function* () {
+    yield api
+      .get('/')
+      .expect(200);
   });
 
   it('should return redirect if domain not found', function* () {

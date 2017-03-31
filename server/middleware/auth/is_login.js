@@ -20,13 +20,8 @@ let auth = function (req, res, next) {
     };
   }
 
-  // 处理请求路径
-  let url_path = path.join(req.baseUrl, req.path);
-  if (url_path.endsWith('/')) {
-    url_path = url_path.slice(0, -1);
-  }
-
   // 放行白名单
+  let url_path = path.resolve(path.join(req.baseUrl, req.path));
   if (white_list.indexOf(url_path) !== -1) {
     return next();
   }

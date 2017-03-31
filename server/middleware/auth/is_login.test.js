@@ -23,4 +23,16 @@ describe('middleware/auth/is_login', function () {
       .use(user_plugin.plugin())
       .expect(200);
   });
+
+  it('should allow if url in white list', function* () {
+    yield api
+      .get('/api/config')
+      .expect(200);
+  });
+
+  it('should allow if url end with /', function* () {
+    yield api
+      .get('/api/config/')
+      .expect(200);
+  });
 });

@@ -4,7 +4,7 @@ const config = require('config');
 const httpProxy = require('http-proxy');
 
 const utils = require('../lib/utils');
-const errors = require('../lib/errors');
+const HttpError = require('../lib/http_error');
 const express = require('../lib/express');
 const {Proxy} = require('../service');
 
@@ -65,7 +65,7 @@ router.use(function* (req, res, next) {
 
   // 代理访问
   proxy_server.web(req, res, options, function (err) {
-    next(new errors.BadGateway(err.message));
+    next(new HttpError(HttpError.BAD_GATEWAY, err.message));
   });
 });
 

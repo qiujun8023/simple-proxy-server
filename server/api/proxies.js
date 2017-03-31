@@ -4,7 +4,7 @@ const _ = require('lodash');
 const config = require('config');
 
 const {Proxy} = require('../service');
-const errors = require('../lib/errors');
+const HttpError = require('../lib/http_error');
 const express = require('../lib/express');
 
 let checkDomain = function (domain) {
@@ -24,7 +24,7 @@ router.post('/', function* (req, res) {
   // 判断域名合法性
   let domain = req.body.domain;
   if (domain && !checkDomain(domain)) {
-    throw new errors.Forbidden('域名不合法，请检查');
+    throw new HttpError(HttpError.FORBIDDEN, '域名不合法，请检查');
   }
 
   // TODO 数据冲突时的处理
@@ -41,13 +41,13 @@ router.put('/', function* (req, res) {
   // 判断存在性及权限校验
   let proxy = yield Proxy.getAsync(proxy_id);
   if (!proxy || proxy.user_id !== user_id) {
-    throw new errors.NotFound('数据未找到，请检查');
+    throw new HttpError(HttpError.NOT_FOUND, '数据未找到，请检查');
   }
 
   // 判断域名合法性
   let domain = req.body.domain;
   if (domain && !checkDomain(domain)) {
-    throw new errors.Forbidden('域名不合法，请检查');
+    throw new HttpError(HttpError.FORBIDDEN, '域名不合法，请检查');
   }
 
   // TODO 数据冲突时的处理
@@ -63,7 +63,7 @@ router.delete('/', function* (req, res) {
   // 判断存在性及权限校验
   let proxy = yield Proxy.getAsync(proxy_id);
   if (!proxy || proxy.user_id !== user_id) {
-    throw new errors.NotFound('数据未找到，请检查');
+    throw new HttpError(HttpError.NOT_FOUND, '数据未找到，请检查');
   }
 
   yield Proxy.removeAsync(proxy_id);

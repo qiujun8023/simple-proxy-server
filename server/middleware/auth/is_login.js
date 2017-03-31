@@ -1,6 +1,7 @@
 'use strict';
 
-const errors = require('../../lib/errors');
+const path = require('path');
+const HttpError = require('../../lib/http_error');
 const utils = require('../../lib/utils');
 
 let white_list = [
@@ -20,13 +21,13 @@ let auth = function (req, res, next) {
   }
 
   // 处理请求路径
-  let path = req.path;
-  if (path.endsWith('/')) {
-    path = path.slice(0, -1);
+  let url_path = path.join(req.baseUrl, req.path);
+  if (url_path.endsWith('/')) {
+    url_path = url_path.slice(0, -1);
   }
 
   // 放行白名单
-  if (white_list.indexOf(path) !== -1) {
+  if (white_list.indexOf(url_path) !== -1) {
     return next();
   }
 
@@ -38,7 +39,7 @@ let auth = function (req, res, next) {
 
   let referer = req.headers.referer || null;
   let OAuthConfig = utils.getOAuthConfig(req.secure, referer);
-  throw new errors.Unauthorized('您需要登陆登陆才能访问', null, OAuthConfig);
+  throw new HttpError(HttpError.UNAUTHORIZED, '您需要登陆登陆才能访问', OAuthConfig);
 };
 
 module.exports = () => auth;

@@ -7,7 +7,7 @@ const config = require('config');
 
 const auths = require('./auth');
 const utils = require('../lib/utils');
-const errors = require('../lib/errors');
+const HttpError = require('../lib/http_error');
 const express = require('../lib/express');
 const isTest = require('../lib/test/is_test');
 
@@ -40,7 +40,7 @@ glob.sync('api/**/*.js', {cwd}).map(function (file) {
 
 // Api 错误
 router.use('/api/*', function () {
-  throw new errors.NotFound('page not found');
+  throw new HttpError(HttpError.NOT_FOUND, 'page not found');
 });
 
 // 处理静态目录

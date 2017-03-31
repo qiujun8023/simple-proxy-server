@@ -3,13 +3,11 @@
 const _ = require('lodash');
 const config = require('config');
 const expect = require('chai').expect;
-
 const utility = require('../lib/test/utility');
 const random = require('../lib/test/random/proxy');
-
 const ProxyService = require('./proxy');
 
-describe('server/service/proxy', function () {
+describe('service/proxy', function () {
   let proxy_without_tls;
   let proxy_with_tls;
 

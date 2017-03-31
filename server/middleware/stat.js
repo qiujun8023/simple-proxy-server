@@ -3,7 +3,6 @@
 const co = require('co');
 const config = require('config');
 const requestStats = require('request-stats');
-
 const {Log} = require('../service');
 const logger = require('../lib/logger');
 

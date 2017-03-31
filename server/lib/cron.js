@@ -2,7 +2,6 @@
 
 const co = require('co');
 const {CronJob} = require('cron');
-
 const logger = require('./logger');
 
 module.exports = function (time, action) {

@@ -1,7 +1,6 @@
 'use strict';
 
 const _ = require('lodash');
-
 const LogModel = require('../model').Log;
 const ProxyModel = require('../model').Proxy;
 

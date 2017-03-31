@@ -5,7 +5,7 @@ const {expect} = require('chai');
 const random = require('../lib/test/random/proxy');
 const user_plugin = require('../lib/test/plugin/user')();
 
-describe('api/proxies', function () {
+describe('/api/proxies', function () {
   let proxy;
 
   before(function* () {

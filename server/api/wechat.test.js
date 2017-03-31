@@ -2,7 +2,7 @@
 
 const config = require('config');
 
-describe('server/api/wechat', function () {
+describe('/api/wechat', function () {
   describe('get /api/wechat/callback', function () {
     it('should throw bad request error if auth_code not found', function* () {
       yield api

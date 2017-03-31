@@ -1,13 +1,12 @@
 'use strict';
 
-const expect = require('chai').expect;
-
+const {expect} = require('chai');
 const HttpError = require('./http_error');
 
-describe('server/lib/http_error', function () {
-  it('should throw BadRequest error', function* () {
+describe('lib/http_error', function () {
+  it('should throw bad request error', function* () {
     try {
-      throw new HttpError(HttpError.BAD_REQUEST, 'A BadRequest Error');
+      throw new HttpError(HttpError.BAD_REQUEST, 'A bad request error');
     } catch (e) {
       expect(e.status).to.equal(400);
     }

@@ -2,7 +2,6 @@
 
 const _ = require('lodash');
 const config = require('config');
-
 const cron = require('../lib/cron');
 const {Log, IpLocation} = require('../service');
 

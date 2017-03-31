@@ -3,7 +3,6 @@
 const config = require('config');
 const Promise = require('bluebird');
 const API = require('wechat-enterprise-api');
-
 const redis = require('../lib/redis');
 
 const TOKEN_CACHE_KEY = 'wechat:access_token';

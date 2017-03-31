@@ -1,10 +1,8 @@
 'use strict';
 
 const path = require('path');
-
 const glob = require('glob');
 const config = require('config');
-
 const auths = require('./auth');
 const utils = require('../lib/utils');
 const HttpError = require('../lib/http_error');

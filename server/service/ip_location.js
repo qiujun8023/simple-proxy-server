@@ -1,7 +1,6 @@
 'use strict';
 
 const request = require('co-request');
-
 const redis = require('../lib/redis');
 
 exports = module.exports = {};

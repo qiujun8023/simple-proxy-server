@@ -3,7 +3,7 @@
 const random = require('../lib/test/random/proxy');
 const utility = require('../lib/test/utility');
 
-describe('server/middleware/proxy', function () {
+describe('middleware/proxy', function () {
   let proxy;
 
   before(function* () {

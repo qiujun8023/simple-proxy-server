@@ -1,7 +1,6 @@
 'use strict';
 
 const _ = require('lodash');
-
 const userRandom = require('./random/user');
 const proxyRandom = require('./random/proxy');
 const {User, Proxy} = require('../../service');

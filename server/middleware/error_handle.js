@@ -1,7 +1,6 @@
 'use strict';
 
 const config = require('config');
-
 const HttpError = require('../lib/http_error');
 const logger = require('../lib/logger');
 

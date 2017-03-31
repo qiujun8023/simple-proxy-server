@@ -2,7 +2,6 @@
 
 const _ = require('lodash');
 const config = require('config');
-
 const {Proxy} = require('../service');
 const HttpError = require('../lib/http_error');
 const express = require('../lib/express');
@@ -14,7 +13,7 @@ let checkDomain = function (domain) {
 let router = module.exports = express.Router();
 
 router.get('/', function* (req, res) {
-  let user_id = req.session.user.user_id;
+  let {user_id} = req.session.user;
   let list = yield Proxy.findAsync({user_id});
   res.json(list);
 });
@@ -22,7 +21,7 @@ router.get('/', function* (req, res) {
 // 添加数据
 router.post('/', function* (req, res) {
   // 判断域名合法性
-  let domain = req.body.domain;
+  let {domain} = req.body;
   if (domain && !checkDomain(domain)) {
     throw new HttpError(HttpError.FORBIDDEN, '域名不合法，请检查');
   }
@@ -35,8 +34,8 @@ router.post('/', function* (req, res) {
 
 // 修改修改
 router.put('/', function* (req, res) {
-  let user_id = req.session.user.user_id;
-  let proxy_id = req.body.proxy_id;
+  let {user_id} = req.session.user;
+  let {proxy_id} = req.body;
 
   // 判断存在性及权限校验
   let proxy = yield Proxy.getAsync(proxy_id);
@@ -45,7 +44,7 @@ router.put('/', function* (req, res) {
   }
 
   // 判断域名合法性
-  let domain = req.body.domain;
+  let {domain} = req.body;
   if (domain && !checkDomain(domain)) {
     throw new HttpError(HttpError.FORBIDDEN, '域名不合法，请检查');
   }
@@ -57,8 +56,8 @@ router.put('/', function* (req, res) {
 
 // 删除
 router.delete('/', function* (req, res) {
-  let user_id = req.session.user.user_id;
-  let proxy_id = req.query.proxy_id;
+  let {user_id} = req.session.user;
+  let {proxy_id} = req.query;
 
   // 判断存在性及权限校验
   let proxy = yield Proxy.getAsync(proxy_id);

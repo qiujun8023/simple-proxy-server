@@ -2,7 +2,6 @@
 
 const config = require('config');
 const httpProxy = require('http-proxy');
-
 const utils = require('../lib/utils');
 const HttpError = require('../lib/http_error');
 const express = require('../lib/express');

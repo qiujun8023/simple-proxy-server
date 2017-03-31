@@ -1,7 +1,6 @@
 'use strict';
 
 const config = require('config');
-
 const express = require('../lib/express');
 
 let router = module.exports = express.Router();

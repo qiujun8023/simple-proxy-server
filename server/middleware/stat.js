@@ -4,7 +4,7 @@ const co = require('co');
 const config = require('config');
 const requestStats = require('request-stats');
 
-const LogService = require('../service').Log;
+const {Log} = require('../service');
 const logger = require('../lib/logger');
 
 let log = function* (info) {
@@ -29,10 +29,10 @@ let log = function* (info) {
   };
 
   // 插入数据库
-  return yield LogService.addAsync(options);
+  return yield Log.addAsync(options);
 };
 
-let stats = function (req, res, next) {
+let stat = function (req, res, next) {
   // 关闭日志
   if (config.proxy_log.save_days <= 0) {
     return next();
@@ -46,4 +46,4 @@ let stats = function (req, res, next) {
   next();
 };
 
-module.exports = () => stats;
+module.exports = () => stat;

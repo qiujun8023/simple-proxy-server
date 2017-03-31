@@ -1,11 +1,10 @@
 'use strict';
 
-const errors = require('../lib/errors');
-const utils = require('../lib/utils');
+const errors = require('../../lib/errors');
+const utils = require('../../lib/utils');
 
 let white_list = [
   '/api/config',
-  '/api/wechat/oauth',
   '/api/wechat/callback',
   '/api/wechat/logout',
 ];
@@ -26,11 +25,6 @@ let auth = function (req, res, next) {
     path = path.slice(0, -1);
   }
 
-  // 放行非 API 目录
-  if (!path.startsWith('/api/')) {
-    return next();
-  }
-
   // 放行白名单
   if (white_list.indexOf(path) !== -1) {
     return next();
@@ -41,7 +35,6 @@ let auth = function (req, res, next) {
   if (user && user.user_id) {
     return next();
   }
-
 
   let referer = req.headers.referer || null;
   let OAuthConfig = utils.getOAuthConfig(req.secure, referer);

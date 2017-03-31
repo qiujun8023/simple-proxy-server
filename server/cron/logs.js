@@ -4,8 +4,7 @@ const _ = require('lodash');
 const config = require('config');
 
 const cron = require('../lib/cron');
-const LogService = require('../service').Log;
-const IpLocationService = require('../service').IpLocation;
+const {Log, IpLocation} = require('../service');
 
 // 更新数据库中的地理位置信息
 let set_location = cron(config.proxy_log.cron.set_location, function* () {
@@ -13,16 +12,16 @@ let set_location = cron(config.proxy_log.cron.set_location, function* () {
     return;
   }
 
-  let ips = yield LogService.findIpsAsync();
+  let ips = yield Log.findIpsAsync();
   for (let ip of ips) {
-    let location = yield IpLocationService.getAsync(ip);
+    let location = yield IpLocation.getAsync(ip);
     if (location) {
       location = _.pick(location, ['region', 'city', 'isp']);
     } else {
       location = {region: '', city: '', isp: ''};
     }
 
-    yield LogService.updateByIpAsync(ip, location);
+    yield Log.updateByIpAsync(ip, location);
   }
 });
 
@@ -32,7 +31,7 @@ let data_clean = cron(config.proxy_log.cron.data_clean, function* () {
     return;
   }
 
-  yield LogService.deleteByTimeAsync(config.proxy_log.save_days);
+  yield Log.deleteByTimeAsync(config.proxy_log.save_days);
 });
 
 module.exports = {

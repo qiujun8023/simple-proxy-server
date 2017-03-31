@@ -6,20 +6,22 @@ const httpProxy = require('http-proxy');
 const utils = require('../lib/utils');
 const errors = require('../lib/errors');
 const express = require('../lib/express');
-const ProxyService = require('../service').Proxy;
+const {Proxy} = require('../service');
 
 let router = express.Router();
 let proxy_server = httpProxy.createProxyServer({});
 
 router.use(function* (req, res, next) {
-  // 判断是否访问管理后台
+  // 判断是否访问管理后台及测试环境
   let hostname = req.hostname || '';
   if (hostname === config.domain) {
+    return next();
+  } else if (hostname === '127.0.0.1' && config.env === 'test') {
     return next();
   }
 
   // 不存在的解析，重定向到管理后台
-  let proxy = yield ProxyService.getNormalByDomainAsync(hostname);
+  let proxy = yield Proxy.getNormalByDomainAsync(hostname);
   if (!proxy) {
     return res.redirect(utils.getBaseHttpUrl());
   }

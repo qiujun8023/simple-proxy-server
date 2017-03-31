@@ -4,11 +4,12 @@ const Chance = require('chance');
 
 let chance = new Chance();
 
-module.exports = chance;
-
-chance.proxy = {
+module.exports = {
   getUserId() {
     return chance.string();
+  },
+  getDomain() {
+    return chance.domain();
   },
   getMark() {
     return chance.string();

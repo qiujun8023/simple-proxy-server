@@ -1,8 +1,8 @@
 'use strict';
 
+const {User} = require('../service');
 const errors = require('../lib/errors');
-const wechat_api = require('../lib/wechat');
-const UserService = require('../service').User;
+const wechat = require('../lib/wechat');
 const express = require('../lib/express');
 
 let router = module.exports = express.Router();
@@ -16,17 +16,14 @@ router.get('/callback', function* (req, res) {
 
   let user;
   try {
-    user = yield wechat_api.getLoginUserInfoByCodeAsync(auth_code);
-    user = yield wechat_api.getUserAsync(user.user_info.userid);
+    user = yield wechat.getLoginUserInfoByCodeAsync(auth_code);
+    user = yield wechat.getUserAsync(user.user_info.userid);
   } catch (err) {
     throw new errors.BadRequest(err.message);
   }
 
   // 将微信获取的用户信息更新到数据库
-  let user_id = yield UserService.addByWechatAsync(user);
-
-  // 判断用户状态
-  user = yield UserService.getAsync(user_id);
+  user = yield User.addByWechatAsync(user);
   if (!user) {
     throw new errors.SystemError('系统错误，用户信息导入失败');
   } else if (user.is_locked) {

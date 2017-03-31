@@ -2,26 +2,44 @@
 
 const _ = require('lodash');
 
-const random = require('./random');
-const ProxyServer = require('../../service/proxy');
+const userRandom = require('./random/user');
+const proxyRandom = require('./random/proxy');
+const {User, Proxy} = require('../../service');
+
+exports.createTestUserAsync = function* (opts) {
+  let data = _.assign({
+    user_id: userRandom.getUserId(),
+    name: userRandom.getName(),
+    gender: userRandom.getGender(),
+    mobile: userRandom.getMobile(),
+    email: userRandom.getEmail(),
+    avatar: userRandom.getAvatar(),
+  }, opts || {});
+
+  return yield User.upsertAsync(data);
+};
+
+exports.removeTestUserAsync = function* (user) {
+  return yield User.removeAsync(user.user_id);
+};
 
 exports._createTestProxyAsync = function* (tls, opts) {
   let data = {};
-  data.user_id = random.proxy.getUserId();
-  data.mark = random.proxy.getMark();
-  data.domain = random.domain();
-  data.target = random.domain();
-  data.target_type = random.proxy.getTargetType();
-  data.hostname = random.domain();
-  data.proxy_type = random.proxy.getProxyType();
+  data.user_id = proxyRandom.getUserId();
+  data.mark = proxyRandom.getMark();
+  data.domain = proxyRandom.getDomain();
+  data.target = proxyRandom.getDomain();
+  data.target_type = proxyRandom.getTargetType();
+  data.hostname = proxyRandom.getDomain();
+  data.proxy_type = proxyRandom.getProxyType();
   if (tls) {
-    data.cert = random.proxy.getCert();
-    data.key = random.proxy.getKey();
+    data.cert = proxyRandom.getCert();
+    data.key = proxyRandom.getKey();
   }
 
   data = _.assign(data, opts || {});
-  let proxy_id = yield ProxyServer.addAsync(data);
-  return yield ProxyServer.getAsync(proxy_id);
+  let proxy_id = yield Proxy.addAsync(data);
+  return yield Proxy.getAsync(proxy_id);
 };
 
 exports.createTestProxyAsync = function* (opts) {
@@ -33,5 +51,5 @@ exports.createTestProxyWithTlsAsync = function* (opts) {
 };
 
 exports.removeTestProxyAsync = function* (proxy) {
-  return yield ProxyServer.removeAsync(proxy.proxy_id);
+  return yield Proxy.removeAsync(proxy.proxy_id);
 };

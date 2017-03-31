@@ -19,7 +19,7 @@ const ProxyService = require('./service').Proxy;
 app.set('x-powered-by', false);
 
 // 统计
-app.use(mws.stats());
+app.use(mws.stat());
 
 // 处理代理
 app.use(mws.proxy());
@@ -34,7 +34,6 @@ app.use(bodyParser.urlencoded({
 app.use(mws.session());
 
 // 加载路由
-app.use(mws.auth());
 app.use(mws.router());
 
 // 错误处理

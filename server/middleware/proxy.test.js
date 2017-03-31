@@ -1,6 +1,6 @@
 'use strict';
 
-const random = require('../lib/test/random');
+const random = require('../lib/test/random/proxy');
 const utility = require('../lib/test/utility');
 
 describe('server/middleware/proxy', function () {
@@ -22,7 +22,7 @@ describe('server/middleware/proxy', function () {
   it('should return redirect if domain not found', function* () {
     yield api
       .get('/')
-      .set('Host', random.domain())
+      .set('Host', random.getDomain())
       .expect(302);
   });
 

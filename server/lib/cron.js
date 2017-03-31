@@ -1,7 +1,7 @@
 'use strict';
 
 const co = require('co');
-const CronJob = require('cron').CronJob;
+const {CronJob} = require('cron');
 
 const logger = require('./logger');
 

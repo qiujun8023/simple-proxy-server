@@ -5,7 +5,7 @@ const config = require('config');
 const expect = require('chai').expect;
 
 const utility = require('../lib/test/utility');
-const random = require('../lib/test/random');
+const random = require('../lib/test/random/proxy');
 
 const ProxyService = require('./proxy');
 
@@ -72,7 +72,7 @@ describe('server/service/proxy', function () {
     });
 
     it('should return false where domain not found', function* () {
-      let domain = random.domain();
+      let domain = random.getDomain();
       let proxy = yield ProxyService.getByDomainAsync(domain);
       expect(proxy).to.be.false;
     });
@@ -85,7 +85,7 @@ describe('server/service/proxy', function () {
     });
 
     it('should return [] if user_id not found', function* () {
-      let user_id = random.proxy.getUserId();
+      let user_id = random.getUserId();
       let list = yield ProxyService.findAsync({user_id});
       expect(list).to.deep.equal([]);
     });
@@ -93,13 +93,13 @@ describe('server/service/proxy', function () {
 
   describe('updateAsync', function () {
     it('should update mark success', function* () {
-      let mark = random.proxy.getMark();
+      let mark = random.getMark();
       proxy_with_tls = yield ProxyService.updateAsync(proxy_with_tls.proxy_id, {mark});
       expect(proxy_with_tls.mark).to.equal(mark);
     });
 
     it('should update cert success', function* () {
-      let cert = random.proxy.getCert();
+      let cert = random.getCert();
       proxy_without_tls = yield ProxyService.updateAsync(proxy_without_tls.proxy_id, {cert});
       expect(proxy_without_tls.cert).to.equal(cert);
     });

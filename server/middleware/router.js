@@ -5,6 +5,7 @@ const path = require('path');
 const glob = require('glob');
 const config = require('config');
 
+const auths = require('./auth');
 const utils = require('../lib/utils');
 const errors = require('../lib/errors');
 const express = require('../lib/express');
@@ -21,7 +22,10 @@ router.use(function (req, res, next) {
   next();
 });
 
-// 添加所有的API路由
+// API 路由添加安全校验
+router.use('/api/*', auths.isLogin());
+
+// 加载 API
 let cwd = path.join(__dirname, '..');
 glob.sync('api/**/*.js', {cwd}).map(function (file) {
   if (isTest(file)) {
@@ -34,15 +38,15 @@ glob.sync('api/**/*.js', {cwd}).map(function (file) {
   router.use(prefix, handler);
 });
 
+// Api 错误
+router.use('/api/*', function () {
+  throw new errors.NotFound('page not found');
+});
+
 // 处理静态目录
 router.use(express.static(config.client_dir));
 router.get('/*', function (req, res) {
   res.sendFile(path.resolve(config.client_dir, 'index.html'));
-});
-
-// 404 错误
-router.use(function () {
-  throw new errors.NotFound('page not found');
 });
 
 module.exports = () => router;

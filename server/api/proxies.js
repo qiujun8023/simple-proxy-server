@@ -3,8 +3,8 @@
 const _ = require('lodash');
 const config = require('config');
 
+const {Proxy} = require('../service');
 const errors = require('../lib/errors');
-const ProxyService = require('../service').Proxy;
 const express = require('../lib/express');
 
 let checkDomain = function (domain) {
@@ -14,9 +14,9 @@ let checkDomain = function (domain) {
 let router = module.exports = express.Router();
 
 router.get('/', function* (req, res) {
-  let user = req.session.user;
-  let list = yield ProxyService.findAsync({user_id: user.user_id});
-  res.json({user, list});
+  let user_id = req.session.user.user_id;
+  let list = yield Proxy.findAsync({user_id});
+  res.json(list);
 });
 
 // 添加数据
@@ -29,7 +29,7 @@ router.post('/', function* (req, res) {
 
   // TODO 数据冲突时的处理
   let options = _.assign(req.body, req.session.user);
-  yield ProxyService.addAsync(options);
+  yield Proxy.addAsync(options);
   res.status(201).json({result: true});
 });
 
@@ -39,7 +39,7 @@ router.put('/', function* (req, res) {
   let proxy_id = req.body.proxy_id;
 
   // 判断存在性及权限校验
-  let proxy = yield ProxyService.getAsync(proxy_id);
+  let proxy = yield Proxy.getAsync(proxy_id);
   if (!proxy || proxy.user_id !== user_id) {
     throw new errors.NotFound('数据未找到，请检查');
   }
@@ -51,7 +51,7 @@ router.put('/', function* (req, res) {
   }
 
   // TODO 数据冲突时的处理
-  yield ProxyService.updateAsync(proxy_id, req.body);
+  yield Proxy.updateAsync(proxy_id, req.body);
   res.json({result: true});
 });
 
@@ -61,11 +61,11 @@ router.delete('/', function* (req, res) {
   let proxy_id = req.query.proxy_id;
 
   // 判断存在性及权限校验
-  let proxy = yield ProxyService.getAsync(proxy_id);
+  let proxy = yield Proxy.getAsync(proxy_id);
   if (!proxy || proxy.user_id !== user_id) {
     throw new errors.NotFound('数据未找到，请检查');
   }
 
-  yield ProxyService.removeAsync(proxy_id);
+  yield Proxy.removeAsync(proxy_id);
   res.json({result: true});
 });

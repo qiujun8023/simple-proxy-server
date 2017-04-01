@@ -61,6 +61,7 @@ let config = {
     },
   },
 
+  github: 'https://github.com/qious/simple-proxy',
   client_dir: path.join(__dirname, '../../client'),
 };
 

@@ -2,10 +2,12 @@
 
 const config = require('config');
 const {expect} = require('chai');
-const random = require('../lib/test/random/proxy');
-const user_plugin = require('../lib/test/plugin/user')();
+const random = require('../../lib/test/random/proxy');
+const user_plugin = require('../../lib/test/plugin/user')();
 
-describe('/api/proxies', function () {
+const BASE_RUL = '/api/proxies';
+
+describe(BASE_RUL, function () {
   let proxy;
 
   before(function* () {
@@ -16,10 +18,10 @@ describe('/api/proxies', function () {
     yield user_plugin.after();
   });
 
-  describe('post /api/proxies', function () {
+  describe('post', function () {
     it('should return forbidden if domain not allow', function* () {
       yield api
-        .post('/api/proxies')
+        .post(BASE_RUL)
         .use(user_plugin.plugin())
         .send({
           mark: random.getMark(),
@@ -32,7 +34,7 @@ describe('/api/proxies', function () {
 
     it('should add proxy success', function* () {
       let res = yield api
-        .post('/api/proxies')
+        .post(BASE_RUL)
         .use(user_plugin.plugin())
         .send({
           mark: random.getMark(),
@@ -46,10 +48,10 @@ describe('/api/proxies', function () {
     });
   });
 
-  describe('get /api/proxies', function () {
+  describe('get', function () {
     it('should get proxy success', function* () {
       let res = yield api
-        .get('/api/proxies')
+        .get(BASE_RUL)
         .use(user_plugin.plugin())
         .expect(200);
 
@@ -59,10 +61,10 @@ describe('/api/proxies', function () {
     });
   });
 
-  describe('put /api/proxies', function () {
+  describe('put', function () {
     it('should update failture if data not found', function* () {
       yield api
-        .put('/api/proxies')
+        .put(BASE_RUL)
         .use(user_plugin.plugin())
         .send({
           proxy_id: -1,
@@ -73,7 +75,7 @@ describe('/api/proxies', function () {
 
     it('should return forbidden if domain not allow', function* () {
       yield api
-        .put('/api/proxies')
+        .put(BASE_RUL)
         .use(user_plugin.plugin())
         .send({
           proxy_id: proxy.proxy_id,
@@ -85,7 +87,7 @@ describe('/api/proxies', function () {
     it('should update proxy success', function* () {
       let mark = random.getMark();
       yield api
-        .put('/api/proxies')
+        .put(BASE_RUL)
         .use(user_plugin.plugin())
         .send({
           proxy_id: proxy.proxy_id,
@@ -94,7 +96,7 @@ describe('/api/proxies', function () {
         .expect(200);
 
       let res = yield api
-        .get('/api/proxies')
+        .get(BASE_RUL)
         .expect(200);
       expect(res.body.length).to.equal(1);
 
@@ -103,10 +105,10 @@ describe('/api/proxies', function () {
     });
   });
 
-  describe('delete /api/proxies', function () {
+  describe('delete', function () {
     it('should delete failture if data not found', function* () {
       yield api
-        .delete('/api/proxies')
+        .delete(BASE_RUL)
         .use(user_plugin.plugin())
         .query({
           proxy_id: -1,
@@ -116,7 +118,7 @@ describe('/api/proxies', function () {
 
     it('should delete proxy success', function* () {
       yield api
-        .delete('/api/proxies')
+        .delete(BASE_RUL)
         .use(user_plugin.plugin())
         .query({
           proxy_id: proxy.proxy_id,
@@ -124,7 +126,7 @@ describe('/api/proxies', function () {
         .expect(200);
 
       let res = yield api
-        .get('/api/proxies')
+        .get(BASE_RUL)
         .expect(200);
       expect(res.body.length).to.equal(0);
     });

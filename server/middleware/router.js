@@ -30,7 +30,14 @@ glob.sync('api/**/*.js', {cwd}).map(function (file) {
     return;
   }
 
-  let prefix = '/' + file.slice(0, -'.js'.length);
+  let prefix = '/' + file;
+  let suffixes = ['/index.js', '.js'];
+  for (let suffix of suffixes) {
+    if (prefix.endsWith(suffix)) {
+      prefix = prefix.slice(0, -suffix.length);
+    }
+  }
+
   let location = path.join(cwd, file);
   let handler = require(location);
   router.use(prefix, handler);

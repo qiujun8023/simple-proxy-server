@@ -1,14 +1,14 @@
 'use strict';
 
-const {User} = require('../service');
-const HttpError = require('../lib/http_error');
-const wechat = require('../lib/wechat');
-const express = require('../lib/express');
+const {User} = require('../../service');
+const HttpError = require('../../lib/http_error');
+const wechat = require('../../lib/wechat');
+const express = require('../../lib/express');
 
 let router = module.exports = express.Router();
 
 // 获取用户信息
-router.get('/callback', function* (req, res) {
+router.get('/', function* (req, res) {
   let auth_code = req.query.auth_code || '';
   if (!auth_code) {
     throw new HttpError(HttpError.BAD_REQUEST, '微信授权失败...');
@@ -32,10 +32,4 @@ router.get('/callback', function* (req, res) {
 
   req.session.user = user;
   res.redirect(req.query.state || '/');
-});
-
-// 注销登陆
-router.post('/logout', function (req) {
-  req.session.user = {};
-  throw new HttpError(HttpError.UNAUTHORIZED, '注销登录成功');
 });

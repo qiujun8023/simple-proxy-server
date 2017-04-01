@@ -2,9 +2,9 @@
 
 const _ = require('lodash');
 const config = require('config');
-const {Proxy} = require('../service');
-const HttpError = require('../lib/http_error');
-const express = require('../lib/express');
+const {Proxy} = require('../../service');
+const HttpError = require('../../lib/http_error');
+const express = require('../../lib/express');
 
 let checkDomain = function (domain) {
   return domain !== config.domain;

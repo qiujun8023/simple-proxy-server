@@ -10,6 +10,6 @@ router.get('/', function (req, res) {
     domain: config.domain || config.host,
     http_port: config.http.port,
     https_port: config.https.enable ? config.https.port : null,
-    github: 'https://github.com/qious/simple-proxy',
+    github: config.github,
   });
 });

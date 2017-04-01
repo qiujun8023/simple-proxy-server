@@ -26,8 +26,6 @@ router.get('/', function* (req, res) {
   user = yield User.addByWechatAsync(user);
   if (!user) {
     throw new HttpError(HttpError.INTERNAL_SERVER_ERROR, '系统错误，用户信息导入失败');
-  } else if (user.is_locked) {
-    throw new HttpError(HttpError.FORBIDDEN, '您的账号已被锁定');
   }
 
   req.session.user = user;

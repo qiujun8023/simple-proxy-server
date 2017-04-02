@@ -1,5 +1,6 @@
 'use strict';
 
+const _ = require('lodash');
 const UserModel = require('../model').User;
 
 let User = module.exports = {};
@@ -13,7 +14,7 @@ User.addByWechatAsync = function* (options) {
     gender: gender[options.gender],
     mobile: options.mobile || '',
     email: options.email || '',
-    avatar: options.avatar || '',
+    avatar: _.trimStart(options.avatar, 'htps:') || '',
   };
   return yield this.upsertAsync(options);
 };
@@ -35,14 +36,24 @@ User.updateAsync = function* (user_id, options) {
   return user.get({plain: true});
 };
 
-// 禁用用户
-User.lockAsync = function* (user_id) {
-  return yield this.updateAsync(user_id, {state: 'LOCKED'});
-};
+// 搜索用户
+User.searchAsync = function* (key) {
+  key = '%' + _.trim(key, '%') + '%';
+  let users = yield UserModel.findAll({
+    where: {
+      $or: {
+        user_id: {$like: key},
+        name: {$like: key},
+      },
+    },
+  });
 
-// 启用用户
-User.unlockAsync = function* (user_id) {
-  return yield this.updateAsync(user_id, {state: 'NORMAL'});
+  let res = [];
+  for (let user of users) {
+    res.push(user.get({plain: true}));
+  }
+
+  return res;
 };
 
 // 获取用户信息

@@ -2,6 +2,7 @@
 
 const config = require('config');
 
+// 获取 HTTP 地址前缀
 let getBaseHttpUrl = function () {
   let port = Number(config.http.port);
   if (port === 80) {
@@ -10,6 +11,7 @@ let getBaseHttpUrl = function () {
   return `http://${config.domain}:${port}`;
 };
 
+// 获取 HTTPS 地址前缀
 let getBaseHttpsUrl = function () {
   let port = Number(config.https.port);
   if (port === 443) {
@@ -18,6 +20,7 @@ let getBaseHttpsUrl = function () {
   return `https://${config.domain}:${config.https.port}`;
 };
 
+// 获取 OAuth 2.0 配置信息
 let getOAuthConfig = function (secure, state) {
   let redirect_uri = '/api/wechat/callback';
   if (secure) {

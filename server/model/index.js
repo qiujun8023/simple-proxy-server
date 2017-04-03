@@ -10,6 +10,7 @@ require('moder')(__dirname, {
 });
 
 exports.Proxy.sync();
+exports.Ssl.sync();
 exports.User.sync();
 exports.Log.sync();
 
@@ -20,6 +21,16 @@ exports.User.hasMany(exports.Proxy, {
 });
 exports.Proxy.belongsTo(exports.User, {
   foreignKey: 'user_id',
+  constraints: false,
+});
+
+// 代理与证书关系
+exports.Proxy.hasOne(exports.Ssl, {
+  foreignKey: 'proxy_id',
+  constraints: false,
+});
+exports.Ssl.belongsTo(exports.Proxy, {
+  foreignKey: 'proxy_id',
   constraints: false,
 });
 

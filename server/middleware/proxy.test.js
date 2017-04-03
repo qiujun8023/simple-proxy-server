@@ -5,10 +5,13 @@ const random = require('../lib/test/random/proxy');
 const utility = require('../lib/test/utility');
 
 describe('middleware/proxy', function () {
+  let user;
   let proxy;
 
   before(function* () {
+    user = yield utility.createTestUserAsync();
     proxy = yield utility.createTestProxyAsync({
+      user_id: user.user_id,
       target: 'www.taobao.com',
       target_type: 'HTTPS',
       hostname: 'www.taobao.com',
@@ -18,6 +21,7 @@ describe('middleware/proxy', function () {
 
   after(function* () {
     yield utility.removeTestProxyAsync(proxy);
+    yield utility.removeTestUserAsync(user);
   });
 
   it('should return next if domain in config', function* () {

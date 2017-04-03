@@ -13,7 +13,7 @@ const bodyParser = require('body-parser');
 const app = require('./lib/express')();
 const utils = require('./lib/utils');
 const mws = require('./middleware');
-const ProxyService = require('./service').Proxy;
+const {Ssl} = require('./service');
 
 // 关闭 x-powered-by
 app.set('x-powered-by', false);
@@ -51,7 +51,7 @@ if (!module.parent) {
       // HTTPS SNI 回调
       SNICallback: function (domain, cb) {
         co(function* () {
-          return yield ProxyService.SNIAsync(domain);
+          return yield Ssl.SNIAsync(domain);
         }).then((ctx) => cb(null, ctx)).catch(cb);
       },
     }, app);

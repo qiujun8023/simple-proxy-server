@@ -20,7 +20,7 @@ router.use(function* (req, res, next) {
   }
 
   // 不存在的解析，重定向到管理后台
-  let proxy = yield Proxy.getNormalByDomainAsync(hostname);
+  let proxy = yield Proxy.getWithCacheByDomainAsync(hostname);
   if (!proxy) {
     return res.redirect(utils.getBaseHttpUrl());
   }

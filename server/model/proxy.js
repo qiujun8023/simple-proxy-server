@@ -51,14 +51,6 @@ module.exports = sequelize.define('proxy', {
     allowNull: false,
     comment: '目标地址类型',
   },
-  cert: {
-    type: Sequelize.TEXT,
-    comment: '证书',
-  },
-  key: {
-    type: Sequelize.TEXT,
-    comment: '私钥',
-  },
   is_paused: {
     type: Sequelize.ENUM,
     values: ['Y', 'N'],

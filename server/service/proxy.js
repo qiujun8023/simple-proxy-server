@@ -1,159 +1,134 @@
 'use strict';
 
-const fs = require('fs');
-const tls = require('tls');
-const _ = require('lodash');
-const config = require('config');
 const redis = require('../lib/redis');
 const ProxyModel = require('../model').Proxy;
 const UserModel = require('../model').User;
 
-exports = module.exports = {};
+let Proxy = module.exports = {};
 
-if (config.https.enable) {
-  exports._key = fs.readFileSync(config.https.key);
-  exports._cert = fs.readFileSync(config.https.cert);
-}
+// 缓存前缀
+Proxy._cache_prefix = 'proxy:';
 
-exports.SNIAsync = function* (domain) {
-  if (domain === config.domain) {
-    return tls.createSecureContext({
-      key: exports._key,
-      cert: exports._cert,
-    });
-  }
-
-  let proxy = yield this.getNormalByDomainAsync(domain);
-  return tls.createSecureContext({
-    key: proxy.key,
-    cert: proxy.cert,
-  });
+// 获取缓存 Key
+Proxy.getCacheKeyByDomain = function (domain) {
+  return this._cache_prefix + domain;
 };
 
-// 统一前缀
-exports._cachePrefix = 'domain:';
-
-// 通过域名设置代理缓存
-exports._setCacheByDomainAsync = function* (domain, data) {
-  let cache_key = this._cachePrefix + domain;
-  return yield redis.set(cache_key, JSON.stringify(data), 'EX', 300);
-};
-
-// 通过域名删除代理缓存
-exports._removeCacheByDomainAsync = function* (domain) {
-  let cache_key = this._cachePrefix + domain;
-  return yield redis.del(cache_key);
-};
-
-// 通过域名读取代理缓存
-exports._getCacheByDomainAsync = function* (domain) {
-  let cache_key = this._cachePrefix + domain;
+// 通过域名获取缓存
+Proxy.getCacheByDomainAsync = function* (domain) {
+  let cache_key = this.getCacheKeyByDomain(domain);
   let cache = yield redis.get(cache_key);
   return cache ? JSON.parse(cache) : null;
 };
 
-// 增加代理
-exports.addAsync = function* (data) {
-  let proxy = yield ProxyModel.create(data);
-  return _.isEmpty(proxy) ? false : proxy.proxy_id;
+// 通过域名设置缓存
+Proxy.setCacheByDomainAsync = function* (domain, data) {
+  let cache_key = this.getCacheKeyByDomain(domain);
+  return yield redis.set(cache_key, JSON.stringify(data), 'EX', 300);
 };
 
-// 删除代理
-exports.removeAsync = function* (proxy_id) {
-  let proxy = yield this._getAsync(proxy_id);
-  if (_.isEmpty(proxy)) {
-    return true;
-  }
-
-  // 删除缓存
-  yield this._removeCacheByDomainAsync(proxy.domain);
-  return proxy.destroy();
-};
-
-// 更新代理
-exports.updateAsync = function* (proxy_id, data) {
-  let proxy = yield this._getAsync(proxy_id);
-  if (_.isEmpty(proxy)) {
-    return false;
-  }
-
-  proxy = yield proxy.update(data);
-  proxy = proxy.get({plain: true});
-
-  // 更新缓存
-  yield this._setCacheByDomainAsync(proxy.domain, proxy);
-  return proxy;
+// 通过域名删除缓存
+Proxy.removeCacheByDomainAsync = function* (domain) {
+  let cache_key = this.getCacheKeyByDomain(domain);
+  return yield redis.del(cache_key);
 };
 
 // 通过主键查询
-exports._getAsync = function* (proxy_id) {
-  return yield ProxyModel.findById(proxy_id, {
-    include: [UserModel],
-  });
-};
-
-// 通过主键查询
-exports.getAsync = function* (proxy_id) {
-  let proxy = yield this._getAsync(proxy_id);
-  if (_.isEmpty(proxy)) {
+Proxy.getAsync = function* (proxy_id) {
+  let proxy = yield ProxyModel.findById(proxy_id);
+  if (!proxy) {
     return false;
   }
 
   return proxy.get({plain: true});
 };
 
-// 通过域名查询可以提供代理
-exports.getNormalByDomainAsync = function* (domain, dont_cache) {
-  let proxy = yield this.getByDomainAsync(domain, dont_cache);
-  if (!proxy) {
-    return false;
-  } else if (proxy.is_paused) {
-    return false;
-  } else if (proxy.user && proxy.user.is_locked) {
-    return false;
-  }
-
-  return proxy;
-};
-
-// 通过域名查询
-exports.getByDomainAsync = function* (domain, dont_cache) {
-  // 从缓存中读取
-  if (!dont_cache) {
-    let cache = yield this._getCacheByDomainAsync(domain);
-    if (cache) {
-      cache.is_cache = true;
-      return cache;
-    }
-  }
-
-  // 从数据中查询
+// 通过 domain 获取代理信息（查询缓存）
+Proxy.getByDomainAsync = function* (domain, with_paused) {
   let proxy = yield ProxyModel.findOne({
     where: {domain},
     include: [UserModel],
   });
-  if (_.isEmpty(proxy)) {
+
+  if (!proxy) {
+    return false;
+  }
+
+  proxy = proxy.get({plain: true});
+  if (!with_paused) {
+    if (proxy.is_paused) {
+      return false;
+    } else if (!proxy.user || proxy.user.is_locked) {
+      return false;
+    }
+  }
+
+  delete proxy.user;
+  return proxy;
+};
+
+// 通过 domain 获取代理信息
+Proxy.getWithCacheByDomainAsync = function* (domain, with_paused) {
+  // 从缓存中读取
+  let proxy = yield this.getCacheByDomainAsync(domain);
+
+  // 从数据中查询
+  if (!proxy) {
+    proxy = yield this.getByDomainAsync(domain, with_paused);
+  }
+
+  if (!proxy) {
     return false;
   }
 
   // 写入缓存
-  proxy = proxy.get({plain: true});
-  yield this._setCacheByDomainAsync(proxy.domain, proxy);
+  yield this.setCacheByDomainAsync(proxy.domain, proxy);
 
-  proxy.is_cache = false;
   return proxy;
 };
 
-// 获取多个结果
-exports.findAsync = function* (where) {
-  let list = yield ProxyModel.findAll({where});
-  if (_.isEmpty(list)) {
-    return [];
-  }
+// 获取代理列表
+Proxy.findAsync = function* (where) {
+  let proxies = yield ProxyModel.findAll({where});
 
   let res = [];
-  for (let item of list) {
-    res.push(item.get({plain: true}));
+  for (let proxy of proxies) {
+    proxy = proxy.get({plain: true});
+    res.push(proxy);
   }
   return res;
+};
+
+// 增加代理
+Proxy.addAsync = function* (data) {
+  let proxy = yield ProxyModel.create(data);
+  return proxy.get({plain: true});
+};
+
+// 更新代理
+Proxy.updateAsync = function* (proxy_id, data) {
+  let proxy = yield ProxyModel.findById(proxy_id);
+  if (!proxy) {
+    return false;
+  }
+
+  // 更新数据库
+  proxy = yield proxy.update(data);
+  proxy = proxy.get({plain: true});
+
+  // 删除缓存
+  yield this.removeCacheByDomainAsync(proxy.domain);
+  return proxy;
+};
+
+// 删除代理
+Proxy.removeAsync = function* (proxy_id) {
+  let proxy = yield ProxyModel.findById(proxy_id);
+  if (!proxy) {
+    return false;
+  }
+
+  // 删除缓存
+  yield this.removeCacheByDomainAsync(proxy.domain);
+  return proxy.destroy();
 };

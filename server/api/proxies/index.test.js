@@ -44,7 +44,18 @@ describe(BASE_RUL, function () {
         })
         .expect(201);
 
-      expect(res.body).to.deep.equal({result: true});
+      let keys = [
+        'proxy_id',
+        'user_id',
+        'mark',
+        'domain',
+        'hostname',
+        'target',
+        'target_type',
+        'proxy_type',
+        'is_paused',
+      ];
+      expect(res.body).to.include.keys(keys);
     });
   });
 
@@ -86,7 +97,7 @@ describe(BASE_RUL, function () {
 
     it('should update proxy success', function* () {
       let mark = random.getMark();
-      yield api
+      let res = yield api
         .put(BASE_RUL)
         .use(user_plugin.plugin())
         .send({
@@ -94,14 +105,7 @@ describe(BASE_RUL, function () {
           mark: mark,
         })
         .expect(200);
-
-      let res = yield api
-        .get(BASE_RUL)
-        .expect(200);
-      expect(res.body.length).to.equal(1);
-
-      proxy = res.body[0];
-      expect(proxy.mark).to.equal(mark);
+      expect(res.body.mark).to.equal(mark);
     });
   });
 
@@ -117,18 +121,16 @@ describe(BASE_RUL, function () {
     });
 
     it('should delete proxy success', function* () {
+      let {proxy_id} = proxy;
       yield api
         .delete(BASE_RUL)
         .use(user_plugin.plugin())
-        .query({
-          proxy_id: proxy.proxy_id,
-        })
+        .query({proxy_id})
         .expect(200);
 
-      let res = yield api
-        .get(BASE_RUL)
-        .expect(200);
-      expect(res.body.length).to.equal(0);
+      yield api
+        .get(BASE_RUL + '/' + proxy_id)
+        .expect(404);
     });
   });
 });

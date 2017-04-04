@@ -50,8 +50,8 @@ let config = {
   },
 
   wechat: {
-    corp_id: 'corp_id', // 企业号 CorpId
-    secret: 'secret',  // 企业号 Secret
+    corp_id: 'wx4e2c2b771c467c9f', // 企业号 CorpId
+    secret: 'k7TGD8xJLDU6-sPH3NwY0eTs2oBPyAINMdbSbGN80fuEt01UK0Z8dWzhm7crgkz7',  // 企业号 Secret
     usertype: 'admin', // member(成员登录)、admin(管理员登录)、all(成员或管理员皆可登录)
   },
 

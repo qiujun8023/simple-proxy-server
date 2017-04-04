@@ -4,6 +4,16 @@ let config = {
   env: 'test',
   debug: false,
 
+  domain: 'proxy.dev',
+
+  http: {
+    port: 8080,
+  },
+
+  https: {
+    enable: false,
+  },
+
   mysql: {
     poolSize: 5,
     host: 'localhost',

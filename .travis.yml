@@ -22,6 +22,6 @@ script:
   - npm run lint
   - npm run cover
 
-# after_success:
-#   - npm install coveralls
-#   - cat ./coverage/lcov.info | coveralls
+after_success:
+  - npm install coveralls
+  - cat ./coverage/lcov.info | coveralls

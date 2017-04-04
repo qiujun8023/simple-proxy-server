@@ -69,11 +69,11 @@ describe('service/proxy', function () {
       expect(proxy).to.deep.equal(tmp_proxy);
     });
 
-    it('should return false if proxy is paused', function* () {
+    it('should return false if proxy is not enabled', function* () {
       let tmp_user = yield utility.createTestUserAsync();
       let tmp_proxy = yield utility.createTestProxyAsync({
         user_id: tmp_user.user_id,
-        is_paused: true,
+        is_enabled: false,
       });
 
       let res1 = yield ProxyService.getByDomainAsync(tmp_proxy.domain);

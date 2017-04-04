@@ -51,18 +51,18 @@ module.exports = sequelize.define('proxy', {
     allowNull: false,
     comment: '目标地址类型',
   },
-  is_paused: {
+  is_enabled: {
     type: Sequelize.ENUM,
     values: ['Y', 'N'],
-    defaultValue: 'N',
+    defaultValue: 'Y',
     allowNull: false,
-    comment: '是否暂停',
+    comment: '是否启用',
     get: function () {
-      let is_paused = this.getDataValue('is_paused');
-      return is_paused === 'Y';
+      let is_enabled = this.getDataValue('is_enabled');
+      return is_enabled === 'Y';
     },
-    set: function (is_paused) {
-      this.setDataValue('is_paused', is_paused ? 'Y' : 'N');
+    set: function (is_enabled) {
+      this.setDataValue('is_enabled', is_enabled ? 'Y' : 'N');
     },
   },
 }, {

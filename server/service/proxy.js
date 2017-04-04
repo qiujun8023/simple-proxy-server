@@ -44,7 +44,7 @@ Proxy.getAsync = function* (proxy_id) {
 };
 
 // 通过 domain 获取代理信息（查询缓存）
-Proxy.getByDomainAsync = function* (domain, with_paused) {
+Proxy.getByDomainAsync = function* (domain, with_disabled) {
   let proxy = yield ProxyModel.findOne({
     where: {domain},
     include: [UserModel],
@@ -55,8 +55,8 @@ Proxy.getByDomainAsync = function* (domain, with_paused) {
   }
 
   proxy = proxy.get({plain: true});
-  if (!with_paused) {
-    if (proxy.is_paused) {
+  if (!with_disabled) {
+    if (!proxy.is_enabled) {
       return false;
     } else if (!proxy.user || proxy.user.is_locked) {
       return false;
@@ -68,13 +68,13 @@ Proxy.getByDomainAsync = function* (domain, with_paused) {
 };
 
 // 通过 domain 获取代理信息
-Proxy.getWithCacheByDomainAsync = function* (domain, with_paused) {
+Proxy.getWithCacheByDomainAsync = function* (domain, with_disabled) {
   // 从缓存中读取
   let proxy = yield this.getCacheByDomainAsync(domain);
 
   // 从数据中查询
   if (!proxy) {
-    proxy = yield this.getByDomainAsync(domain, with_paused);
+    proxy = yield this.getByDomainAsync(domain, with_disabled);
   }
 
   if (!proxy) {

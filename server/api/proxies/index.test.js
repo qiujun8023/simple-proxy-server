@@ -53,7 +53,7 @@ describe(BASE_RUL, function () {
         'target',
         'target_type',
         'proxy_type',
-        'is_paused',
+        'is_enabled',
       ];
       expect(res.body).to.include.keys(keys);
     });

@@ -11,6 +11,7 @@ describe(BASE_RUL, function () {
     });
 
     it('should throw System error with invalid auth_code', function* () {
+      this.timeout(20000);
       yield api
         .get(BASE_RUL)
         .query({

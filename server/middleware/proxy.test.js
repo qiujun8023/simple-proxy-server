@@ -12,9 +12,9 @@ describe('middleware/proxy', function () {
     user = yield utility.createTestUserAsync();
     proxy = yield utility.createTestProxyAsync({
       user_id: user.user_id,
-      target: 'www.taobao.com',
+      target: 'travis-ci.org',
       target_type: 'HTTPS',
-      hostname: 'www.taobao.com',
+      hostname: 'travis-ci.org',
       proxy_type: 'BOTH',
     });
   });
@@ -45,6 +45,7 @@ describe('middleware/proxy', function () {
   });
 
   it('should proxy success', function* () {
+    this.timeout(20000);
     yield api
       .get('/')
       .set('Host', proxy.domain)

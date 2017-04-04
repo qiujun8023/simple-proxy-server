@@ -5,7 +5,7 @@
 [![Build Status](https://travis-ci.org/qious/simple-proxy.svg?branch=master)](https://travis-ci.org/qious/simple-proxy)
 
 
-##### 特性
+#### 特性
 
 * 支持 HTTP 、HTTPS
 * 支持 SSL 配置

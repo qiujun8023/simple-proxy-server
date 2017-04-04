@@ -1,47 +1,68 @@
-# 简易反向代理
+#### 项目状态
 
-## 名词解析
+##### Master
 
-在计算机网络中，反向代理是代理服务器的一种。它根据客户端的请求，从后端的服务器上获取资源，然后再将这些资源返回给客户端。与前向代理不同，前向代理作为一个媒介将互联网上获取的资源返回给相关联的客户端，而反向代理是在服务器端作为代理使用，而不是客户端。 --- 《维基百科》
+[![Build Status](https://travis-ci.org/qious/simple-proxy.svg?branch=master)](https://travis-ci.org/qious/simple-proxy)
 
-## 特性
 
-* 支持 HTTP -> HTTP
-* 支持 HTTP -> HTTPS
-* 支持 HTTPS -> HTTP
-* 支持 HTTPS -> HTTPS
+##### 特性
+
+* 支持 HTTP 、HTTPS
+* 支持 SSL 配置
 * 支持 WEB界面管理
-* 支持配置单个域名 SSL 证书
-* 支持配置回源 Host
 
-## 截图
+#### **依赖安装**
 
-![截图](/client/img/screenshot-1.png)
+```bash
+git submodule init
+git submodule update
+npm install
+```
 
-![截图](/client/img/screenshot-2.png)
+#### **线上运行**
 
-## 主要用途
+```bash
+cp server/config/default.js server/config/local.js
+cp pm2.sample.json pm2.json
+npm run start
+```
 
-* 在一个内网中，假如只有少部分电脑有公网 IP，内网中的其他电脑如果也需要对外提供服务
-* 同一台电脑上的多个程序都需要监听 80 端口时，导致冲突
+#### **协作开发**
 
-### 本人的需求：
+* 启动服务器
 
-* 由于我们在学校实验室用的是校园网，在宿舍用的非校园网，自己或者周围同学的电脑或多或少的当服务器用，当回到宿舍时，当需要访问自己或者同学的电脑时，无法访问
-* 学校很多网站都只是对内网开放，有时在非校园网时非常需要
+```bash
+npm run dev
+```
 
-### 试过的一些解决方案
+* 执行测试
 
-* 最初时使用 `Nginx` 进行反向代理，自己一个人用还好，多个人使用，其它人对命令行可能不太熟悉
-* 后来又用 `SSH -L` `SSH -R` 代理单个站点
-* 也用过用 `SSH -D` 进行代理整个内网
-* 后来也选用过 `Ngrok` (非常不错，但是自己没有通配 SSL 证书)
+```bash
+npm run test                # 运行所有测试
+npm run test -- -g network  # 只测试 network
+npm run cover               # 测试覆盖率
+```
 
-## 存在的问题
+* 代码风格/质量检查
 
-* 为了自己和同学方便，目前是使用微信企业号扫码登陆，但是对第三方开发不方便
-* 不支持通配域名
+```bash
+npm run lint
+```
 
-## 开源许可
+#### **目录结构**
 
-MIT
+    .
+    ├── client                // 前端
+    └── server
+        ├── api               // API路由
+        ├── config            // 配置文件
+        ├── cron              // 计划任务
+        ├── lib               // 通用函数
+        ├── middleware        // 中间件
+        ├── model             // 数据模型
+        ├── service           // 业务逻辑
+        └── app.js            // 入口文件
+        └── cron.js           // 计划任务入口文件
+
+#### **关联项目**
+* [simple-proxy-front](https://github.com/qious/simple-proxy-front) 提供前端页面展示

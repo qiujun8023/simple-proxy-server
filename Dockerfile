@@ -1,4 +1,4 @@
-FROM node:4.4.4
+FROM node:6.9.3
 MAINTAINER qiujun i@qiujun.me
 
 ENV NODE_ENV production

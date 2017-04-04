@@ -1,11 +1,10 @@
 'use strict';
 
 const Sequelize = require('sequelize');
-
-const sequelize = require('../lib/sequelize')('proxy');
+const sequelize = require('../lib/sequelize');
 
 module.exports = sequelize.define('proxy', {
-  id: {
+  proxy_id: {
     type: Sequelize.INTEGER,
     primaryKey: true,
     autoIncrement: true,
@@ -13,6 +12,7 @@ module.exports = sequelize.define('proxy', {
   },
   user_id: {
     type: Sequelize.STRING(30),
+    allowNull: false,
     comment: '用户 id',
   },
   mark: {
@@ -51,15 +51,25 @@ module.exports = sequelize.define('proxy', {
     allowNull: false,
     comment: '目标地址类型',
   },
-  cert: {
-    type: Sequelize.TEXT,
-    comment: '证书',
-  },
-  key: {
-    type: Sequelize.TEXT,
-    comment: '私钥',
+  is_enabled: {
+    type: Sequelize.ENUM,
+    values: ['Y', 'N'],
+    defaultValue: 'Y',
+    allowNull: false,
+    comment: '是否启用',
+    get: function () {
+      let is_enabled = this.getDataValue('is_enabled');
+      return is_enabled === 'Y';
+    },
+    set: function (is_enabled) {
+      this.setDataValue('is_enabled', is_enabled ? 'Y' : 'N');
+    },
   },
 }, {
+  name: {
+    singular: 'proxy',
+    plural: 'proxies',
+  },
   underscored: true,
   freezeTableName: true,
 });

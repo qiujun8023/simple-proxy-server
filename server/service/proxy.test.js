@@ -1,89 +1,129 @@
 'use strict';
 
-const config = require('config');
 const expect = require('chai').expect;
-
 const utility = require('../lib/test/utility');
-const random = require('../lib/test/random');
-
+const random = require('../lib/test/random/proxy');
 const ProxyService = require('./proxy');
 
-describe('server/service/proxy', function () {
-  let proxy_without_tls;
-  let proxy_with_tls;
+describe('service/proxy', function () {
+  let user;
+  let proxy;
 
-  describe('addAsync', function () {
-    it('should add proxy success', function* () {
-      proxy_without_tls = yield utility.createTestProxyAsync();
-      expect(proxy_without_tls).to.include.keys([
-        'id',
-        'user_id',
-        'mark',
-        'domain',
-        'target',
-        'target_type',
-        'proxy_type',
-      ]);
-    });
+  before(function* () {
+    user = yield utility.createTestUserAsync();
+  });
 
-    it('should add proxy with tls success', function* () {
-      proxy_with_tls = yield utility.createTestProxyWithTlsAsync();
-      expect(proxy_without_tls).to.include.keys([
-        'id',
-        'user_id',
-        'mark',
-        'domain',
-        'target',
-        'target_type',
-        'proxy_type',
-        'cert',
-        'key',
-      ]);
+  after(function* () {
+    yield utility.removeTestUserAsync(proxy);
+  });
+
+
+  describe('getCacheKeyByDomain', function () {
+    it('should return cache key success', function () {
+      let domain = random.getDomain();
+      let cache_key = ProxyService.getCacheKeyByDomain(domain);
+      expect(cache_key).to.equal(ProxyService._cache_prefix + domain);
     });
   });
 
-  describe('SNIAsync', function () {
-    it('should return error when key and cert not found', function* () {
-      try {
-        yield ProxyService.SNIAsync(proxy_with_tls.domain);
-      } catch (e) {
-        return;
-      }
-      throw new Error('should throw snia error but not');
+  describe('DomainCache', function () {
+    let domain = random.getDomain();
+    let cache_data = {domain};
+
+    it('should set cache success', function* () {
+      yield ProxyService.setCacheByDomainAsync(domain, cache_data);
     });
 
-    it('should return ctx when key and cert exist', function* () {
-      yield ProxyService.SNIAsync(config.domain);
+    it('should get cache success', function* () {
+      let res = yield ProxyService.getCacheByDomainAsync(domain);
+      expect(res).to.deep.equal(cache_data);
+    });
+
+    it('should remove cache success', function* () {
+      yield ProxyService.removeCacheByDomainAsync(domain);
+      let res = yield ProxyService.getCacheByDomainAsync(domain);
+      expect(res).to.equal(null);
+    });
+  });
+
+  describe('addAsync', function () {
+    it('should add proxy success', function* () {
+      proxy = yield utility.createTestProxyAsync({user_id: user.user_id});
+      let keys = ['proxy_id', 'user_id', 'mark', 'domain', 'target', 'target_type', 'proxy_type'];
+      expect(proxy).to.include.keys(keys);
+    });
+  });
+
+  describe('getAsync', function () {
+    it('should get proxy success', function* () {
+      let tmp_proxy = proxy;
+      proxy = yield ProxyService.getAsync(proxy.proxy_id);
+      expect(tmp_proxy.proxy_id).to.equal(proxy.proxy_id);
+      expect(tmp_proxy.domain).to.equal(proxy.domain);
     });
   });
 
   describe('getByDomainAsync', function () {
-    it('should get data from mysql', function* () {
-      let proxy = yield ProxyService.getByDomainAsync(proxy_with_tls.domain, true);
-      expect(proxy).to.deep.equal(proxy_with_tls);
+    it('should get proxy by domain success', function* () {
+      let tmp_proxy = yield ProxyService.getByDomainAsync(proxy.domain);
+      expect(proxy).to.deep.equal(tmp_proxy);
     });
 
-    it('should get data from cache', function* () {
-      let proxy = yield ProxyService.getByDomainAsync(proxy_with_tls.domain);
-      expect(proxy.is_cache).to.be.true;
-      expect(proxy.id).to.equal(proxy_with_tls.id);
+    it('should return false if proxy is not enabled', function* () {
+      let tmp_user = yield utility.createTestUserAsync();
+      let tmp_proxy = yield utility.createTestProxyAsync({
+        user_id: tmp_user.user_id,
+        is_enabled: false,
+      });
+
+      let res1 = yield ProxyService.getByDomainAsync(tmp_proxy.domain);
+      let res2 = yield ProxyService.getByDomainAsync(tmp_proxy.domain, true);
+      expect(res1).to.equal(false);
+      expect(res2).to.not.equal(false);
+
+      yield utility.removeTestProxyAsync(tmp_proxy);
+      yield utility.removeTestUserAsync(tmp_user);
     });
 
-    it('should return false where domain not found', function* () {
-      let domain = random.domain();
-      let proxy = yield ProxyService.getByDomainAsync(domain);
-      expect(proxy).to.be.false;
+    it('should return false if user is locked', function* () {
+      let tmp_user = yield utility.createTestUserAsync({is_locked: true});
+      let tmp_proxy = yield utility.createTestProxyAsync({user_id: tmp_user.user_id});
+
+      let res1 = yield ProxyService.getByDomainAsync(tmp_proxy.domain);
+      let res2 = yield ProxyService.getByDomainAsync(tmp_proxy.domain, true);
+      expect(res1).to.equal(false);
+      expect(res2).to.not.equal(false);
+
+      yield utility.removeTestProxyAsync(tmp_proxy);
+      yield utility.removeTestUserAsync(tmp_user);
+    });
+  });
+
+  describe('getWithCacheByDomainAsync', function () {
+    it('should get proxy by domain success', function* () {
+      let tmp_proxy = yield ProxyService.getWithCacheByDomainAsync(proxy.domain);
+      expect(proxy).to.deep.equal(tmp_proxy);
+    });
+
+    it('should get proxy by domain from cache success', function* () {
+      let tmp_proxy = yield ProxyService.getWithCacheByDomainAsync(proxy.domain);
+      expect(tmp_proxy.proxy_id).to.deep.equal(proxy.proxy_id);
+    });
+
+    it('should return false if proxy not found', function* () {
+      let res = yield ProxyService.getWithCacheByDomainAsync(-1);
+      expect(res).to.be.false;
     });
   });
 
   describe('findAsync', function () {
     it('should find by user_id success', function* () {
-      let list = yield ProxyService.findAsync({user_id: proxy_with_tls.user_id});
-      expect(list).to.deep.equal([proxy_with_tls]);
+      let list = yield ProxyService.findAsync({user_id: proxy.user_id});
+      expect(list[0].proxy_id).to.deep.equal(proxy.proxy_id);
     });
 
     it('should return [] if user_id not found', function* () {
-      let user_id = random.proxy.getUserId();
+      let user_id = random.getUserId();
       let list = yield ProxyService.findAsync({user_id});
       expect(list).to.deep.equal([]);
     });
@@ -91,39 +131,27 @@ describe('server/service/proxy', function () {
 
   describe('updateAsync', function () {
     it('should update mark success', function* () {
-      let mark = random.proxy.getMark();
-      proxy_with_tls = yield ProxyService.updateAsync(proxy_with_tls.id, {mark});
-      expect(proxy_with_tls.mark).to.equal(mark);
-    });
-
-    it('should update cert success', function* () {
-      let cert = random.proxy.getCert();
-      proxy_without_tls = yield ProxyService.updateAsync(proxy_without_tls.id, {cert});
-      expect(proxy_without_tls.cert).to.equal(cert);
+      let mark = random.getMark();
+      proxy = yield ProxyService.updateAsync(proxy.proxy_id, {mark});
+      expect(proxy.mark).to.equal(mark);
     });
 
     it('should return false where proxy not found', function* () {
-      let proxy = yield ProxyService.updateAsync(-1, {});
-      expect(proxy).to.be.false;
+      let tmp_proxy = yield ProxyService.updateAsync(-1, {});
+      expect(tmp_proxy).to.be.false;
     });
   });
 
   describe('removeAsync', function () {
     it('should remove proxy success', function* () {
-      yield utility.removeTestProxyAsync(proxy_without_tls);
-      let res = yield ProxyService.getAsync(proxy_without_tls.id);
+      yield utility.removeTestProxyAsync(proxy);
+      let res = yield ProxyService.getAsync(proxy.proxy_id);
       expect(res).to.be.false;
     });
 
-    it('should remove proxy with tls success', function* () {
-      yield utility.removeTestProxyAsync(proxy_with_tls);
-      let res = yield ProxyService.getAsync(proxy_with_tls.id);
+    it('should return false if proxy not found', function* () {
+      let res = yield ProxyService.removeAsync(proxy.proxy_id);
       expect(res).to.be.false;
-    });
-
-    it('should return true where proxy not found', function* () {
-      let proxy = yield ProxyService.removeAsync(-1);
-      expect(proxy).to.be.true;
     });
   });
 });

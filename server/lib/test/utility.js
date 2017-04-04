@@ -1,37 +1,40 @@
 'use strict';
 
 const _ = require('lodash');
+const userRandom = require('./random/user');
+const proxyRandom = require('./random/proxy');
+const {User, Proxy} = require('../../service');
 
-const random = require('./random');
-const ProxyServer = require('../../service/proxy');
+exports.createTestUserAsync = function* (opts) {
+  let data = _.assign({
+    user_id: userRandom.getUserId(),
+    name: userRandom.getName(),
+    gender: userRandom.getGender(),
+    mobile: userRandom.getMobile(),
+    email: userRandom.getEmail(),
+    avatar: userRandom.getAvatar(),
+  }, opts || {});
 
-exports._createTestProxyAsync = function* (tls, opts) {
-  let data = {};
-  data.user_id = random.proxy.getUserId();
-  data.mark = random.proxy.getMark();
-  data.domain = random.domain();
-  data.target = random.domain();
-  data.target_type = random.proxy.getTargetType();
-  data.hostname = random.domain();
-  data.proxy_type = random.proxy.getProxyType();
-  if (tls) {
-    data.cert = random.proxy.getCert();
-    data.key = random.proxy.getKey();
-  }
+  return yield User.upsertAsync(data);
+};
 
-  data = _.assign(data, opts || {});
-  let id = yield ProxyServer.addAsync(data);
-  return yield ProxyServer.getAsync(id);
+exports.removeTestUserAsync = function* (user) {
+  return yield User.removeAsync(user.user_id);
 };
 
 exports.createTestProxyAsync = function* (opts) {
-  return yield this._createTestProxyAsync(false, opts);
-};
-
-exports.createTestProxyWithTlsAsync = function* (opts) {
-  return yield this._createTestProxyAsync(true, opts);
+  let data = _.assign({
+    user_id: proxyRandom.getUserId(),
+    mark: proxyRandom.getMark(),
+    domain: proxyRandom.getDomain(),
+    target: proxyRandom.getDomain(),
+    target_type: proxyRandom.getTargetType(),
+    hostname: proxyRandom.getDomain(),
+    proxy_type: proxyRandom.getProxyType(),
+  }, opts || {});
+  return yield Proxy.addAsync(data);
 };
 
 exports.removeTestProxyAsync = function* (proxy) {
-  return yield ProxyServer.removeAsync(proxy.id);
+  return yield Proxy.removeAsync(proxy.proxy_id);
 };

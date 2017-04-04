@@ -4,12 +4,11 @@ const _ = require('lodash');
 const config = require('config');
 const session = require('express-session');
 const RedisStore = require('connect-redis')(session);
-
-const redis = require('../lib/redis')('session');
+const redis = require('../lib/redis');
 
 let store = new RedisStore({
   client: redis,
-  prefix: '',
+  prefix: 'session:',
 });
 
 let default_options = {

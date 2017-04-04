@@ -2,25 +2,27 @@
 
 const config = require('config');
 const httpProxy = require('http-proxy');
-
-const errors = require('../lib/errors');
+const utils = require('../lib/utils');
+const HttpError = require('../lib/http_error');
 const express = require('../lib/express');
-const ProxyService = require('../service').Proxy;
+const {Proxy} = require('../service');
 
 let router = express.Router();
 let proxy_server = httpProxy.createProxyServer({});
 
 router.use(function* (req, res, next) {
-  // 判断是否访问管理后台
+  // 判断是否访问管理后台及测试环境
   let hostname = req.hostname || '';
   if (hostname === config.domain) {
+    return next();
+  } else if (hostname === '127.0.0.1' && config.env === 'test') {
     return next();
   }
 
   // 不存在的解析，重定向到管理后台
-  let proxy = yield ProxyService.getByDomainAsync(hostname);
+  let proxy = yield Proxy.getWithCacheByDomainAsync(hostname);
   if (!proxy) {
-    return res.redirect(`http://${config.domain}`);
+    return res.redirect(utils.getBaseHttpUrl());
   }
 
   // 判断是否需要重定向
@@ -30,10 +32,10 @@ router.use(function* (req, res, next) {
     return res.redirect(`https://${req.hostname}${req.url}`);
   }
 
-  // 发送源 IP 信息
-  let remote_address = req.connection.remoteAddress;
-  req.headers['x-real-ip'] = remote_address;
-  req.headers['x-forwarded-for'] = remote_address;
+  // 设置请求头
+  req.headers['x-proxy-id'] = proxy.proxy_id;
+  req.headers['x-real-ip'] = req.ip;
+  req.headers['x-forwarded-for'] = req.ip;
   req.headers['x-forwarded-proto'] = req.protocol;
 
   // 设置回源域名，设置当前端口
@@ -51,7 +53,7 @@ router.use(function* (req, res, next) {
     req.rawHeaders.push(key, req.headers[key]);
   }
 
-  // 代理访问
+  // 构造访问信息
   let options = {};
   if (proxy.target_type === 'HTTPS') {
     options.secure = true;
@@ -60,9 +62,9 @@ router.use(function* (req, res, next) {
     options.target = `http://${proxy.target}`;
   }
 
-  proxy_server.web(req, res, options);
-  proxy_server.on('error', function (err) {
-    next(new errors.BadGateway(err.message));
+  // 代理访问
+  proxy_server.web(req, res, options, function (err) {
+    next(new HttpError(HttpError.BAD_GATEWAY, err.message));
   });
 });
 

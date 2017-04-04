@@ -1,41 +1,57 @@
 'use strict';
 
+const path = require('path');
+const glob = require('glob');
 const config = require('config');
-
-const routers = require('../router');
-const errors = require('../lib/errors');
+const auths = require('./auth');
+const utils = require('../lib/utils');
+const HttpError = require('../lib/http_error');
 const express = require('../lib/express');
+const isTest = require('../lib/test/is_test');
 
 let router = express.Router();
 
-// 判断是否需要开启 HTTPS
+// 强制 HTTPS
 router.use(function (req, res, next) {
   if (config.env !== 'test' && !req.secure && config.https.enable) {
-    return res.redirect(`https://${req.hostname}${req.url}`);
+    return res.redirect(utils.getBaseHttpsUrl() + req.url);
   }
+
   next();
+});
+
+// API 路由添加安全校验
+router.use('/api/*', auths.isLogin());
+
+// 加载 API
+let cwd = path.join(__dirname, '..');
+glob.sync('api/**/*.js', {cwd}).map(function (file) {
+  if (isTest(file)) {
+    return;
+  }
+
+  let prefix = '/' + file;
+  let suffixes = ['/index.js', '.js'];
+  for (let suffix of suffixes) {
+    if (prefix.endsWith(suffix)) {
+      prefix = prefix.slice(0, -suffix.length);
+    }
+  }
+
+  let location = path.join(cwd, file);
+  let handler = require(location);
+  router.use(prefix, handler);
+});
+
+// Api 错误
+router.use('/api/*', function () {
+  throw new HttpError(HttpError.NOT_FOUND, 'page not found');
 });
 
 // 处理静态目录
 router.use(express.static(config.client_dir));
-
-// 微信授权相关
-let wechat = routers.wechat;
-router.get('/wechat/oauth', wechat.oauth);
-router.get('/wechat/callback', wechat.callback);
-router.get('/wechat/logout', wechat.logout);
-
-// 处理API请求
-let action = routers.action;
-router.all('/action', action.auth);
-router.get('/action', action.get);
-router.post('/action', action.post);
-router.put('/action', action.put);
-router.delete('/action', action.delete);
-
-// 404 错误
-router.use(function () {
-  throw new errors.NotFound('page not found');
+router.get('/*', function (req, res) {
+  res.sendFile(path.resolve(config.client_dir, 'index.html'));
 });
 
 module.exports = () => router;

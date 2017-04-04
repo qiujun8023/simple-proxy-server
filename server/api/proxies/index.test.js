@@ -74,36 +74,29 @@ describe(BASE_RUL, function () {
 
   describe('put', function () {
     it('should update failture if data not found', function* () {
+      let mark = random.getMark();
       yield api
-        .put(BASE_RUL)
+        .put(BASE_RUL + '/-1')
         .use(user_plugin.plugin())
-        .send({
-          proxy_id: -1,
-          mark: random.getMark(),
-        })
+        .send({mark})
         .expect(404);
     });
 
     it('should return forbidden if domain not allow', function* () {
+      let domain = config.domain;
       yield api
-        .put(BASE_RUL)
+        .put(BASE_RUL + '/' + proxy.proxy_id)
         .use(user_plugin.plugin())
-        .send({
-          proxy_id: proxy.proxy_id,
-          domain: config.domain,
-        })
+        .send({domain})
         .expect(403);
     });
 
     it('should update proxy success', function* () {
       let mark = random.getMark();
       let res = yield api
-        .put(BASE_RUL)
+        .put(BASE_RUL + '/' + proxy.proxy_id)
         .use(user_plugin.plugin())
-        .send({
-          proxy_id: proxy.proxy_id,
-          mark: mark,
-        })
+        .send({mark})
         .expect(200);
       expect(res.body.mark).to.equal(mark);
     });
@@ -112,20 +105,16 @@ describe(BASE_RUL, function () {
   describe('delete', function () {
     it('should delete failture if data not found', function* () {
       yield api
-        .delete(BASE_RUL)
+        .delete(BASE_RUL + '/-1')
         .use(user_plugin.plugin())
-        .query({
-          proxy_id: -1,
-        })
         .expect(404);
     });
 
     it('should delete proxy success', function* () {
       let {proxy_id} = proxy;
       yield api
-        .delete(BASE_RUL)
+        .delete(BASE_RUL + '/' + proxy_id)
         .use(user_plugin.plugin())
-        .query({proxy_id})
         .expect(200);
 
       yield api

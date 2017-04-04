@@ -62,15 +62,15 @@ Ssl.getAsync = function* (ssl_id) {
 
 // 通过 proxy_id 获取证书信息
 Ssl.getByProxyIdAsync = function* (proxy_id) {
-  let res = yield ProxyModel.findById(proxy_id, {
-    include: [SslModel],
+  let ssl = yield SslModel.findOne({
+    where: {proxy_id},
   });
 
-  if (!res || res.ssl) {
+  if (!ssl) {
     return false;
   }
 
-  return res.ssl.get({plain: true});
+  return ssl.get({plain: true});
 };
 
 // 通过 domain 获取证书信息
@@ -84,7 +84,8 @@ Ssl.getByDomainAsync = function* (domain) {
     return false;
   }
 
-  return res.ssl.get({plain: true});
+  res = res.get({plain: true});
+  return res.ssl;
 };
 
 // 通过 domain 获取证书信息（读取缓存）

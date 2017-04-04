@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const config = require('config');
-const {Proxy} = require('../../service');
+const {Proxy, Ssl} = require('../../service');
 const HttpError = require('../../lib/http_error');
 const express = require('../../lib/express');
 
@@ -43,22 +43,46 @@ router.get('/', function* (req, res) {
 
 // 获取代理详情
 router.get('/:proxy_id', function* (req, res) {
-  let proxy = yield getProxyAsync(req.session.user, req.params.proxy_id);
+  let {proxy_id} = req.params;
+  let proxy = yield getProxyAsync(req.session.user, proxy_id);
+  proxy.ssl = {uploaded: Boolean(yield Ssl.getByProxyIdAsync(proxy_id))};
   res.send(proxy);
 });
 
 // 添加代理
 router.post('/', function* (req, res) {
+  // 过滤请求参数
+  let filter = [
+    'mark', 'domain', 'hostname', 'target',
+    'target_type', 'proxy_type', 'is_enabled',
+  ];
+  let options = _.pick(req.body, filter);
+
+  // 允许管理员为其他用户创建代理
+  options.user_id = req.session.user.user_id;
+  if (req.session.user.is_admin && req.body.user_id) {
+    options.user_id = req.body.user_id;
+  }
+
   // 判断域名合法性
-  let {domain} = req.body;
-  if (!domain) {
+  if (!options.domain) {
     throw new HttpError(HttpError.BAD_REQUEST, '域名不能为空');
   }
-  checkDomain(domain);
+  checkDomain(options.domain);
 
   try {
-    let options = _.assign(req.body, req.session.user);
     let proxy = yield Proxy.addAsync(options);
+
+    // 证书写入数据库
+    let {cert, key} = req.body.ssl || {};
+    if (cert && key) {
+      let proxy_id = proxy.proxy_id;
+      yield Ssl.upsertAsync({proxy_id, cert, key});
+      proxy.ssl = {uploaded: true};
+    } else {
+      proxy.ssl = {uploaded: false};
+    }
+
     res.status(201).json(proxy);
   } catch (err) {
     throw new HttpError(HttpError.BAD_REQUEST, '添加失败，可能域名已被使用');
@@ -66,8 +90,14 @@ router.post('/', function* (req, res) {
 });
 
 // 修改代理
-router.put('/', function* (req, res) {
-  let {proxy_id} = req.body;
+router.put('/:proxy_id', function* (req, res) {
+  // 过滤请求参数
+  let filter = [
+    'mark', 'domain', 'hostname', 'target',
+    'target_type', 'proxy_type', 'is_enabled',
+  ];
+  let options = _.pick(req.body, filter);
+  let {proxy_id} = req.params;
 
   // 存在性与所有者检查
   yield getProxyAsync(req.session.user, proxy_id);
@@ -75,17 +105,26 @@ router.put('/', function* (req, res) {
   checkDomain(req.body.domain);
 
   try {
-    let proxy = yield Proxy.updateAsync(proxy_id, req.body);
+    let proxy = yield Proxy.updateAsync(proxy_id, options);
+
+    // 更新证书信息
+    let {cert, key} = req.body.ssl || {};
+    if (cert && key) {
+      yield Ssl.upsertAsync({proxy_id, cert, key});
+      proxy.ssl = {uploaded: true};
+    } else {
+      proxy.ssl = {uploaded: Boolean(yield Ssl.getByProxyIdAsync(proxy_id))};
+    }
+
     res.json(proxy);
   } catch (err) {
-    throw new HttpError(HttpError.BAD_REQUEST, '添加失败，可能域名已被使用');
+    throw new HttpError(HttpError.BAD_REQUEST, '修改失败，可能域名已被使用');
   }
-
 });
 
 // 删除代理
-router.delete('/', function* (req, res) {
-  let {proxy_id} = req.query;
+router.delete('/:proxy_id', function* (req, res) {
+  let {proxy_id} = req.params;
 
   // 存在性与所有者检查
   yield getProxyAsync(req.session.user, proxy_id);

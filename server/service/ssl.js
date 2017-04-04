@@ -50,6 +50,15 @@ Ssl.removeCacheByDomainAsync = function* (domain) {
   return yield redis.del(cache_key);
 };
 
+// 通过 proxy_id 删除缓存
+Ssl.removeCacheByProxyIdAsync = function* (proxy_id) {
+  let proxy = yield ProxyModel.getAsync(proxy_id);
+  if (proxy && proxy.domain) {
+    return yield this.removeCacheByDomainAsync(proxy.domain);
+  }
+  return false;
+};
+
 // 通过 ssl_id 获取证书信息
 Ssl.getAsync = function* (ssl_id) {
   let ssl = yield SslModel.findById(ssl_id);
@@ -111,6 +120,7 @@ Ssl.getWithCacheByDomainAsync = function* (domain) {
 // 增加或修改证书信息
 Ssl.upsertAsync = function* (options) {
   yield SslModel.upsert(options);
+  yield this.removeCacheByProxyIdAsync(options.proxy_id);
   return yield this.getByProxyIdAsync(options.proxy_id);
 };
 
@@ -121,5 +131,6 @@ Ssl.removeAsync = function* (ssl_id) {
     return false;
   }
 
-  return ssl.destroy();
+  yield this.removeCacheByProxyIdAsync(ssl.proxy_id);
+  return yield ssl.destroy();
 };

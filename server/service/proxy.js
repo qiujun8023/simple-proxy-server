@@ -112,12 +112,14 @@ Proxy.updateAsync = function* (proxy_id, data) {
     return false;
   }
 
+  // 删除缓存
+  yield this.removeCacheByDomainAsync(proxy.domain);
+  yield this.removeCacheByDomainAsync(data.domain);
+
   // 更新数据库
   proxy = yield proxy.update(data);
   proxy = proxy.get({plain: true});
 
-  // 删除缓存
-  yield this.removeCacheByDomainAsync(proxy.domain);
   return proxy;
 };
 
@@ -130,5 +132,5 @@ Proxy.removeAsync = function* (proxy_id) {
 
   // 删除缓存
   yield this.removeCacheByDomainAsync(proxy.domain);
-  return proxy.destroy();
+  return yield proxy.destroy();
 };

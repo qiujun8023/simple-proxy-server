@@ -1,14 +1,12 @@
 FROM node:6.9.3
 MAINTAINER qiujun i@qiujun.me
 
-ENV NODE_ENV production
-
 RUN npm config set registry https://registry.npm.taobao.org
-RUN npm install -g pm2 && pm2 dump
+RUN npm install -q -g pm2 && pm2 dump
 
 COPY . /app
 WORKDIR /app
-RUN npm install
+RUN npm install -q
 
 EXPOSE 80 443
 

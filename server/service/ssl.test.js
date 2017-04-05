@@ -30,7 +30,6 @@ describe('service/ssl', function () {
     it('should return ctx success when key and cert exist', function* () {
       yield SslService.SNIAsync(config.domain);
     });
-
   });
 
   describe('getCacheKeyByDomain', function () {

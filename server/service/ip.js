@@ -14,17 +14,23 @@ Ip.getCacheKeyByIp = function (ip) {
   return this._cache_prefix + ip;
 };
 
-// 通过域名获取缓存
+// 通过 IP 获取缓存
 Ip.getCacheByIpAsync = function* (ip) {
   let cache_key = this.getCacheKeyByIp(ip);
   let cache = yield redis.get(cache_key);
   return cache ? JSON.parse(cache) : null;
 };
 
-// 通过域名设置缓存
+// 通过 IP 设置缓存
 Ip.setCacheByIpAsync = function* (ip, data) {
   let cache_key = this.getCacheKeyByIp(ip);
   return yield redis.set(cache_key, JSON.stringify(data), 'EX', 604800);
+};
+
+// 通过 IP 删除缓存
+Ip.removeCacheByIpAsync = function* (ip) {
+  let cache_key = this.getCacheKeyByIp(ip);
+  return yield redis.del(cache_key);
 };
 
 // 获取 IP 所在地

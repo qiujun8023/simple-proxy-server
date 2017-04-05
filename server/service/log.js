@@ -3,16 +3,26 @@
 const _ = require('lodash');
 const LogModel = require('../model').Log;
 
-exports = module.exports = {};
+let Log = module.exports = {};
 
 // 增加日志
-exports.addAsync = function* (options) {
+Log.addAsync = function* (options) {
   let log = yield LogModel.create(options);
   return log.get({plain: true});
 };
 
+// 获取单条日志
+Log.getAsync = function* (log_id) {
+  let log = yield LogModel.findById(log_id);
+  if (!log) {
+    return false;
+  }
+
+  return log.get({plain: true});
+};
+
 // 获取未设置地址的 IP 集合
-exports.findNeedUpdateAsync = function* (limit) {
+Log.findNeedUpdateAsync = function* (limit) {
   let logs = yield LogModel.aggregate('ip', 'DISTINCT', {
     where: {
       country: null,
@@ -32,14 +42,24 @@ exports.findNeedUpdateAsync = function* (limit) {
 };
 
 // 通过 IP 更新
-exports.updateByIpAsync = function* (ip, data) {
+Log.updateByIpAsync = function* (ip, data) {
   return yield LogModel.update(data, {
     where: {ip},
   });
 };
 
+// 删除单条日志
+Log.removeAsync = function* (log_id) {
+  let log = yield LogModel.findById(log_id);
+  if (!log) {
+    return false;
+  }
+
+  return yield log.destroy();
+};
+
 // 通过时间删除
-exports.deleteByTimeAsync = function* (days_ago) {
+Log.deleteByTimeAsync = function* (days_ago) {
   let ms = days_ago * 24 * 60 * 60 * 1000;
   return yield LogModel.destroy({
     where: {

@@ -70,7 +70,6 @@ User.getAsync = function* (user_id) {
   return user.get({plain: true});
 };
 
-
 // 删除用户
 User.removeAsync = function* (user_id) {
   let user = yield UserModel.findOne({

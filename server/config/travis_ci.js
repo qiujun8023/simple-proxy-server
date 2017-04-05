@@ -4,8 +4,6 @@ let config = {
   env: 'test',
   debug: false,
 
-  domain: 'proxy.dev',
-
   http: {
     port: 8080,
   },

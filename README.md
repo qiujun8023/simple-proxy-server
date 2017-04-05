@@ -7,9 +7,12 @@
 
 #### 特性
 
-* 支持 HTTP 、HTTPS
-* 支持 SSL 配置
-* 支持 WEB界面管理
+* 支持 HTTP -> HTTP
+* 支持 HTTP -> HTTPS
+* 支持 HTTPS -> HTTP
+* 支持 HTTPS -> HTTPS
+* 支持 自定义 SSL 配置
+* 支持 WEB 界面管理
 
 #### **依赖安装**
 

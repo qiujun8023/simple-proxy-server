@@ -3,13 +3,21 @@
 ##### Master
 
 [![Build Status](https://travis-ci.org/qious/simple-proxy.svg?branch=master)](https://travis-ci.org/qious/simple-proxy)
+[![Coverage Status](https://coveralls.io/repos/github/qious/simple-proxy/badge.svg?branch=master)](https://coveralls.io/github/qious/simple-proxy?branch=master)
 
+##### Develop
+
+[![Build Status](https://travis-ci.org/qious/simple-proxy.svg?branch=develop)](https://travis-ci.org/qious/simple-proxy)
+[![Coverage Status](https://coveralls.io/repos/github/qious/simple-proxy/badge.svg?branch=develop)](https://coveralls.io/github/qious/simple-proxy?branch=develop)
 
 #### 特性
 
-* 支持 HTTP 、HTTPS
-* 支持 SSL 配置
-* 支持 WEB界面管理
+* 支持 HTTP -> HTTP
+* 支持 HTTP -> HTTPS
+* 支持 HTTPS -> HTTP
+* 支持 HTTPS -> HTTPS
+* 支持 自定义 SSL 配置
+* 支持 WEB 界面管理
 
 #### **依赖安装**
 

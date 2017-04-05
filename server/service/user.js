@@ -27,7 +27,9 @@ User.upsertAsync = function* (options) {
 
 // 更新用户
 User.updateAsync = function* (user_id, options) {
-  let user = yield UserModel.findById(user_id);
+  let user = yield UserModel.findOne({
+    where: {user_id},
+  });
   if (!user) {
     return false;
   }
@@ -58,7 +60,9 @@ User.searchAsync = function* (key) {
 
 // 获取用户信息
 User.getAsync = function* (user_id) {
-  let user = yield UserModel.findById(user_id);
+  let user = yield UserModel.findOne({
+    where: {user_id},
+  });
   if (!user) {
     return false;
   }
@@ -66,10 +70,11 @@ User.getAsync = function* (user_id) {
   return user.get({plain: true});
 };
 
-
 // 删除用户
 User.removeAsync = function* (user_id) {
-  let user = yield UserModel.findById(user_id);
+  let user = yield UserModel.findOne({
+    where: {user_id},
+  });
   if (!user) {
     return false;
   }

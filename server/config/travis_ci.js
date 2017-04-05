@@ -1,17 +1,20 @@
 'use strict';
 
+const path = require('path');
+
 let config = {
   env: 'test',
   debug: false,
-
-  domain: 'proxy.dev',
 
   http: {
     port: 8080,
   },
 
   https: {
-    enable: false,
+    enable: true,
+    port: 8443,
+    cert: path.join(__dirname, 'ssl/server.crt'),
+    key: path.join(__dirname, 'ssl/server.key'),
   },
 
   mysql: {

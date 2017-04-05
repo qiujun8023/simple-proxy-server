@@ -20,10 +20,4 @@ module.exports = {
   getProxyType() {
     return chance.pickone(['BOTH', 'HTTP_ONLY', 'HTTPS_ONLY']);
   },
-  getCert() {
-    return chance.string({length: 500});
-  },
-  getKey() {
-    return chance.string({length: 500});
-  },
 };

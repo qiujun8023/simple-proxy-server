@@ -17,6 +17,8 @@ install:
 before_script:
   - mysql -e 'CREATE DATABASE proxy;'
   - cp server/config/travis_ci.js server/config/local.js
+  - cp server/config/ssl/server.sample.crt server/config/ssl/server.crt
+  - cp server/config/ssl/server.sample.key server/config/ssl/server.key
 
 script:
   - npm run lint

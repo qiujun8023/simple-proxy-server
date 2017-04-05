@@ -20,6 +20,12 @@ module.exports = sequelize.define('log', {
     allowNull: false,
     comment: '客户端 IP',
   },
+  country: {
+    type: Sequelize.STRING,
+    allowNull: true,
+    defaultValue: null,
+    comment: '所在国家',
+  },
   region: {
     type: Sequelize.STRING,
     allowNull: true,

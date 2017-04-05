@@ -1,6 +1,7 @@
 'use strict';
 
 const config = require('config');
+const Promise = require('bluebird');
 
 // 获取 HTTP 地址前缀
 let getBaseHttpUrl = function () {
@@ -33,8 +34,13 @@ let getOAuthConfig = function (secure, state) {
   return {corp_id, redirect_uri, state, usertype};
 };
 
+let sleep = function (ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+};
+
 module.exports = {
   getBaseHttpUrl,
   getBaseHttpsUrl,
   getOAuthConfig,
+  sleep,
 };

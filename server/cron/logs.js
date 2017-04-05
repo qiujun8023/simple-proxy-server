@@ -1,39 +1,60 @@
 'use strict';
 
-const _ = require('lodash');
 const config = require('config');
 const cron = require('../lib/cron');
-const {Log, IpLocation} = require('../service');
+const {Log, Ip} = require('../service');
+const {sleep} = require('../lib/utils');
+
+let logs = module.exports = {};
+
+let update_errors = {};
+
+let isSkipUpdate = function (now, ip) {
+  if (!update_errors[ip]) {
+    return false;
+  } else if (update_errors[ip].next_time >= now) {
+    return false;
+  }
+  return true;
+};
+
+let updateErrorIncrease = function (now, ip) {
+  if (!update_errors[ip]) {
+    update_errors[ip] = {
+      next_time: now,
+      error_count: 1,
+    };
+  }
+  update_errors[ip].error_count = update_errors[ip].error_count * 2;
+  update_errors[ip].next_time = now + (update_errors[ip].error_count * 1000);
+};
+
+let updateErrorDecrease = function (now, ip) {
+  delete update_errors[ip];
+};
 
 // 更新数据库中的地理位置信息
-let set_location = cron(config.proxy_log.cron.set_location, function* () {
-  if (config.proxy_log.save_days <= 0) {
-    return;
-  }
-
-  let ips = yield Log.findIpsAsync();
+logs.update = cron(config.logs.cron.update, function* () {
+  let now = new Date().getTime();
+  let ips = yield Log.findNeedUpdateAsync(30);
   for (let ip of ips) {
-    let location = yield IpLocation.getAsync(ip);
-    if (location) {
-      location = _.pick(location, ['region', 'city', 'isp']);
-    } else {
-      location = {region: '', city: '', isp: ''};
+    // 防止错误 IP 占用过多资源
+    if (isSkipUpdate(now, ip)) {
+      continue;
     }
 
-    yield Log.updateByIpAsync(ip, location);
+    let location = yield Ip.getLocationWithCacheAsync(ip);
+    if (location) {
+      yield Log.updateByIpAsync(ip, location);
+      updateErrorDecrease(now, ip);
+    } else {
+      updateErrorIncrease(now, ip);
+    }
+    yield sleep(1000);
   }
 });
 
 // 清理过期日志
-let data_clean = cron(config.proxy_log.cron.data_clean, function* () {
-  if (config.proxy_log.save_days <= 0) {
-    return;
-  }
-
-  yield Log.deleteByTimeAsync(config.proxy_log.save_days);
+logs.clean = cron(config.logs.cron.clean, function* () {
+  yield Log.deleteByTimeAsync(config.logs.save_days);
 });
-
-module.exports = {
-  data_clean,
-  set_location,
-};

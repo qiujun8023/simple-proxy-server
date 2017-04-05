@@ -33,7 +33,7 @@ let log = function* (info) {
 
 let stat = function (req, res, next) {
   // 关闭日志
-  if (config.proxy_log.save_days <= 0) {
+  if (config.logs.save_days <= 0) {
     return next();
   }
 

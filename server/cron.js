@@ -6,5 +6,5 @@ process.env.TZ = 'Asia/Shanghai';
 
 const logs = require('./cron/logs');
 
-logs.data_clean.start();
-logs.set_location.start();
+logs.update.start();
+logs.clean.start();

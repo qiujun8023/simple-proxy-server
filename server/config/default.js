@@ -20,11 +20,11 @@ let config = {
   env: 'development',
   debug: true,
 
-  proxy_log: {
+  logs: {
     save_days: 30, // 访问日志保存天数，为 0 则不保存
     cron: { // 格式为 秒 分 时 天 月 星期
-      set_location: '0 */5 * * * *', // 更新数据库中 IP 所在地
-      data_clean: '0 3 * * * *',     // 清理过期日志
+      update: '0 * * * * *', // 更新数据库中 IP 所在地
+      clean: '0 3 * * * *',    // 清理过期日志
     },
   },
 

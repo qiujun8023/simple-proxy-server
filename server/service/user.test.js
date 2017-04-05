@@ -2,7 +2,6 @@
 
 const _ = require('lodash');
 const {expect} = require('chai');
-const utility = require('../lib/test/utility');
 const random = require('../lib/test/random/user');
 const UserService = require('./user');
 

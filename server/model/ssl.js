@@ -11,7 +11,7 @@ module.exports = sequelize.define('ssl', {
     comment: '自增 id',
   },
   proxy_id: {
-    type: Sequelize.STRING(30),
+    type: Sequelize.INTEGER,
     allowNull: false,
     unique: true,
     comment: '代理 id',

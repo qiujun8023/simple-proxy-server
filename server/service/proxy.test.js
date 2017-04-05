@@ -1,6 +1,6 @@
 'use strict';
 
-const expect = require('chai').expect;
+const {expect} = require('chai');
 const utility = require('../lib/test/utility');
 const random = require('../lib/test/random/proxy');
 const ProxyService = require('./proxy');
@@ -16,7 +16,6 @@ describe('service/proxy', function () {
   after(function* () {
     yield utility.removeTestUserAsync(proxy);
   });
-
 
   describe('getCacheKeyByDomain', function () {
     it('should return cache key success', function () {
@@ -106,7 +105,7 @@ describe('service/proxy', function () {
     });
 
     it('should get proxy by domain from cache success', function* () {
-      let tmp_proxy = yield ProxyService.getWithCacheByDomainAsync(proxy.domain);
+      let tmp_proxy = yield ProxyService.getCacheByDomainAsync(proxy.domain);
       expect(tmp_proxy.proxy_id).to.deep.equal(proxy.proxy_id);
     });
 
@@ -130,10 +129,20 @@ describe('service/proxy', function () {
   });
 
   describe('updateAsync', function () {
+    it('should get proxy by domain from cache success', function* () {
+      let tmp_proxy = yield ProxyService.getCacheByDomainAsync(proxy.domain);
+      expect(tmp_proxy.proxy_id).to.deep.equal(proxy.proxy_id);
+    });
+
     it('should update mark success', function* () {
       let mark = random.getMark();
       proxy = yield ProxyService.updateAsync(proxy.proxy_id, {mark});
       expect(proxy.mark).to.equal(mark);
+    });
+
+    it('should get proxy by domain from cache failure', function* () {
+      let res = yield ProxyService.getCacheByDomainAsync(proxy.domain);
+      expect(res).to.be.null;
     });
 
     it('should return false where proxy not found', function* () {

@@ -22,7 +22,7 @@ Ssl.SNIAsync = function* (domain) {
     return tls.createSecureContext(this._https);
   }
 
-  let {key, cert} = yield this.getNormalByDomainAsync(domain);
+  let {key, cert} = yield this.getWithCacheByDomainAsync(domain);
   return tls.createSecureContext({key, cert});
 };
 
@@ -52,7 +52,7 @@ Ssl.removeCacheByDomainAsync = function* (domain) {
 
 // 通过 proxy_id 删除缓存
 Ssl.removeCacheByProxyIdAsync = function* (proxy_id) {
-  let proxy = yield ProxyModel.getAsync(proxy_id);
+  let proxy = yield ProxyModel.findById(proxy_id);
   if (proxy && proxy.domain) {
     return yield this.removeCacheByDomainAsync(proxy.domain);
   }
@@ -84,17 +84,17 @@ Ssl.getByProxyIdAsync = function* (proxy_id) {
 
 // 通过 domain 获取证书信息
 Ssl.getByDomainAsync = function* (domain) {
-  let res = yield ProxyModel.findOne({
+  let proxy = yield ProxyModel.findOne({
     where: {domain},
     include: [SslModel],
   });
 
-  if (!res || res.ssl) {
+  if (!proxy || !proxy.ssl) {
     return false;
   }
 
-  res = res.get({plain: true});
-  return res.ssl;
+  proxy = proxy.get({plain: true});
+  return proxy.ssl;
 };
 
 // 通过 domain 获取证书信息（读取缓存）

@@ -1,5 +1,6 @@
 'use strict';
 
+const url = require('url');
 const config = require('config');
 const Promise = require('bluebird');
 
@@ -24,7 +25,15 @@ let getBaseHttpsUrl = function () {
 // 获取 OAuth 2.0 配置信息
 let getOAuthConfig = function (secure, state) {
   let redirect_uri = '/api/wechat/callback';
-  if (secure) {
+  // 开发环境下使用前端的 protocal 与 host ，方便开发
+  if (config.env === 'development' && state && state.startsWith('http:')) {
+    let result = url.parse(state);
+    redirect_uri = url.format({
+      protocol: result.protocol,
+      host: result.host,
+      pathname: redirect_uri,
+    });
+  } else if (secure) {
     redirect_uri = this.getBaseHttpsUrl() + redirect_uri;
   } else {
     redirect_uri = this.getBaseHttpUrl() + redirect_uri;

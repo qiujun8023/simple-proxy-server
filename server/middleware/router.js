@@ -13,7 +13,7 @@ let router = express.Router();
 
 // 强制 HTTPS
 router.use(function (req, res, next) {
-  if (config.env !== 'test' && !req.secure && config.https.enable) {
+  if (config.env === 'production' && !req.secure && config.https.enable) {
     return res.redirect(utils.getBaseHttpsUrl() + req.url);
   }
 

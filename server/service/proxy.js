@@ -1,8 +1,11 @@
 'use strict';
 
+const co = require('co');
 const redis = require('../lib/redis');
 const ProxyModel = require('../model').Proxy;
 const UserModel = require('../model').User;
+const SslService = require('./ssl');
+const sequelize = require('../lib/sequelize');
 
 let Proxy = module.exports = {};
 
@@ -124,13 +127,34 @@ Proxy.updateAsync = function* (proxy_id, data) {
 };
 
 // 删除代理
-Proxy.removeAsync = function* (proxy_id) {
+Proxy.removeAsync = function* (proxy_id, transaction) {
   let proxy = yield ProxyModel.findById(proxy_id);
   if (!proxy) {
     return false;
   }
 
-  // 删除缓存
-  yield this.removeCacheByDomainAsync(proxy.domain);
-  return yield proxy.destroy();
+  // 删除代理及证书
+  let remove = function (t) {
+    return co(function* () {
+      // 删除证书
+      let ssl = yield proxy.getSsl();
+      if (ssl) {
+        yield SslService.removeAsync(ssl.ssl_id, t);
+      }
+      // 删除代理
+      yield proxy.destroy({transaction: t});
+      // 删除缓存
+      return yield Proxy.removeCacheByDomainAsync(proxy.domain);
+    });
+  };
+
+  // 使用上级事务
+  if (transaction) {
+    return yield remove(transaction);
+  }
+
+  // 新建事务
+  return yield sequelize.transaction(function (t) {
+    return remove(t);
+  });
 };

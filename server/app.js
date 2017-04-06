@@ -1,16 +1,13 @@
 'use strict';
 
-// eslint-disable-next-line
-process.env.NODE_CONFIG_DIR= __dirname +'/config';
+process.env.NODE_CONFIG_DIR = './server/config';
 process.env.TZ = 'Asia/Shanghai';
 
 const http = require('http');
 const https = require('https');
-
 const co = require('co');
 const config = require('config');
 const bodyParser = require('body-parser');
-
 const app = require('./lib/express')();
 const utils = require('./lib/utils');
 const mws = require('./middleware');

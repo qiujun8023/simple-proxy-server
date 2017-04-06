@@ -1,7 +1,10 @@
 'use strict';
 
 const _ = require('lodash');
+const co = require('co');
 const UserModel = require('../model').User;
+const ProxyService = require('./proxy');
+const sequelize = require('../lib/sequelize');
 
 let User = module.exports = {};
 
@@ -79,6 +82,16 @@ User.removeAsync = function* (user_id) {
     return false;
   }
 
-  // TODO 删除用户所有代理
-  return user.destroy();
+  // 删除用户及代理
+  return yield sequelize.transaction(function (t) {
+    return co(function* () {
+      // 删除所有代理
+      let proxies = yield user.getProxies();
+      for (let proxy of proxies) {
+        yield ProxyService.removeAsync(proxy.proxy_id, t);
+      }
+      // 删除用户
+      return yield user.destroy({transaction: t});
+    });
+  });
 };

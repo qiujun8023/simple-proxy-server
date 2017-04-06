@@ -2,8 +2,10 @@
 
 const _ = require('lodash');
 const {expect} = require('chai');
+const utility = require('../lib/test/utility');
 const random = require('../lib/test/random/user');
 const UserService = require('./user');
+const ProxyService = require('./proxy');
 
 describe('service/user', function () {
   let user;
@@ -70,10 +72,13 @@ describe('service/user', function () {
   });
 
   describe('removeAsync', function () {
-    it('should remove user success', function* () {
+    it('should remove user and proxy success', function* () {
+      let proxy = yield utility.createTestProxyAsync({user_id: user.user_id});
       yield UserService.removeAsync(user.user_id);
-      let res = yield UserService.getAsync(user.user_id);
-      expect(res).to.be.false;
+      let res1 = yield UserService.getAsync(user.user_id);
+      let res2 = yield ProxyService.getAsync(proxy.proxy_id);
+      expect(res1).to.be.false;
+      expect(res2).to.be.false;
     });
 
     it('should return false if user not found', function* () {

@@ -125,12 +125,12 @@ Ssl.upsertAsync = function* (options) {
 };
 
 // 删除证书信息
-Ssl.removeAsync = function* (ssl_id) {
+Ssl.removeAsync = function* (ssl_id, transaction) {
   let ssl = yield SslModel.findById(ssl_id);
   if (!ssl) {
     return false;
   }
 
   yield this.removeCacheByProxyIdAsync(ssl.proxy_id);
-  return yield ssl.destroy();
+  return yield ssl.destroy({transaction});
 };

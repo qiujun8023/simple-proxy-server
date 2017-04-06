@@ -2,8 +2,10 @@
 
 const {expect} = require('chai');
 const utility = require('../lib/test/utility');
-const random = require('../lib/test/random/proxy');
+const proxyRandom = require('../lib/test/random/proxy');
+const sslRandom = require('../lib/test/random/ssl');
 const ProxyService = require('./proxy');
+const SslService = require('./ssl');
 
 describe('service/proxy', function () {
   let user;
@@ -19,14 +21,14 @@ describe('service/proxy', function () {
 
   describe('getCacheKeyByDomain', function () {
     it('should return cache key success', function () {
-      let domain = random.getDomain();
+      let domain = proxyRandom.getDomain();
       let cache_key = ProxyService.getCacheKeyByDomain(domain);
       expect(cache_key).to.equal(ProxyService._cache_prefix + domain);
     });
   });
 
   describe('DomainCache', function () {
-    let domain = random.getDomain();
+    let domain = proxyRandom.getDomain();
     let cache_data = {domain};
 
     it('should set cache success', function* () {
@@ -122,7 +124,7 @@ describe('service/proxy', function () {
     });
 
     it('should return [] if user_id not found', function* () {
-      let user_id = random.getUserId();
+      let user_id = proxyRandom.getUserId();
       let list = yield ProxyService.findAsync({user_id});
       expect(list).to.deep.equal([]);
     });
@@ -135,7 +137,7 @@ describe('service/proxy', function () {
     });
 
     it('should update mark success', function* () {
-      let mark = random.getMark();
+      let mark = proxyRandom.getMark();
       proxy = yield ProxyService.updateAsync(proxy.proxy_id, {mark});
       expect(proxy.mark).to.equal(mark);
     });
@@ -152,10 +154,16 @@ describe('service/proxy', function () {
   });
 
   describe('removeAsync', function () {
-    it('should remove proxy success', function* () {
+    it('should remove proxy and ssl success', function* () {
+      let key = sslRandom.getKey();
+      let cert = sslRandom.getCert();
+      let proxy_id = proxy.proxy_id;
+      let ssl = yield SslService.upsertAsync({proxy_id, cert, key});
       yield utility.removeTestProxyAsync(proxy);
-      let res = yield ProxyService.getAsync(proxy.proxy_id);
-      expect(res).to.be.false;
+      let res1 = yield ProxyService.getAsync(proxy.proxy_id);
+      let res2 = yield SslService.getAsync(ssl.ssl_id);
+      expect(res1).to.be.false;
+      expect(res2).to.be.false;
     });
 
     it('should return false if proxy not found', function* () {

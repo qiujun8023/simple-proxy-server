@@ -40,7 +40,9 @@ describe('service/ip', function () {
       this.timeout(20000);
       ip = random.getIp();
       let location = yield IpService.getLocationWithCacheAsync(ip);
-      expect(location).to.include.keys(['country', 'region', 'city', 'isp']);
+      if (location) {
+        expect(location).to.include.keys(['country', 'region', 'city', 'isp']);
+      }
     });
 
     it('should get location from cache success', function* () {

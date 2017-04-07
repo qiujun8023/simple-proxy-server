@@ -6,7 +6,8 @@ let chance = new Chance();
 
 module.exports = {
   getUserId() {
-    return chance.string();
+    let pool = '0123456789abcdef';
+    return chance.string({pool});
   },
   getName() {
     return chance.name();

@@ -134,7 +134,7 @@ describe(BASE_RUL, function () {
     });
   });
 
-  describe('get /:proxy_id', function () {
+  describe('get :proxy_id', function () {
     it('should get proxy success', function* () {
       let res = yield api
         .get(BASE_RUL + '/' + proxies[0].proxy_id)
@@ -145,7 +145,7 @@ describe(BASE_RUL, function () {
     });
   });
 
-  describe('put /:proxy_id', function () {
+  describe('put :proxy_id', function () {
     it('should update failture if data not found', function* () {
       let mark = proxyRandom.getMark();
       yield api
@@ -200,7 +200,7 @@ describe(BASE_RUL, function () {
     });
   });
 
-  describe('delete /:proxy_id', function () {
+  describe('delete :proxy_id', function () {
     it('should delete failture if data not found', function* () {
       yield api
         .delete(BASE_RUL + '/-1')

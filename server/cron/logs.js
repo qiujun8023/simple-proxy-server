@@ -1,9 +1,9 @@
 'use strict';
 
+const _ = require('lodash');
 const config = require('config');
 const cron = require('../lib/cron');
 const {Log, Ip} = require('../service');
-const {sleep} = require('../lib/utils');
 
 let logs = module.exports = {};
 
@@ -45,12 +45,13 @@ logs.update = cron(config.logs.cron.update, function* () {
 
     let location = yield Ip.getLocationWithCacheAsync(ip);
     if (location) {
-      yield Log.updateByIpAsync(ip, location);
+      let keys = ['country', 'region', 'city', 'isp'];
+      let data = _.pick(location, keys);
+      yield Log.updateByIpAsync(ip, data);
       updateErrorDecrease(now, ip);
     } else {
       updateErrorIncrease(now, ip);
     }
-    yield sleep(1000);
   }
 });
 

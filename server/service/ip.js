@@ -35,26 +35,20 @@ Ip.removeCacheByIpAsync = function* (ip) {
 
 // 获取 IP 所在地
 Ip.getLocationAsync = function* (ip) {
-  let location;
+  let res;
   try {
-    let url = `http://freeapi.ipip.net/${ip}`;
-    let headers = {'User-Agent': 'request'};
-    let result = yield request(url, {headers});
-    location = JSON.parse(result.body);
+    let url = 'http://ip.taobao.com/service/getIpInfo.php';
+    let result = yield request(url, {qs: {ip}});
+    res = JSON.parse(result.body);
   } catch (err) {
     return false;
   }
 
-  if (!_.isArray(location)) {
+  if (!_.isObject(res) || res.code !== 0) {
     return false;
   }
 
-  return {
-    country: location[0],
-    region: location[1],
-    city: location[2],
-    isp: location[4],
-  };
+  return res.data;
 };
 
 // 通过缓存获取所在地

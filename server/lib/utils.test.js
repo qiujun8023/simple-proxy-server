@@ -1,6 +1,5 @@
 'use strict';
 
-const _ = require('lodash');
 const config = require('config');
 const {expect} = require('chai');
 const utils = require('./utils');
@@ -50,16 +49,6 @@ describe('lib/utils', function () {
       let res2 = utils.getOAuthConfig(true, state);
       expect(res2.redirect_uri.startsWith('https://')).to.be.true;
       expect(res2).to.include.keys(keys);
-    });
-  });
-
-  describe('sleep', function () {
-    it('should sleep success', function* () {
-      let ms = _.random(0, 100);
-      let time1 = new Date().getTime();
-      yield utils.sleep(ms);
-      let time2 = new Date().getTime();
-      expect(time2 - ms).to.be.at.least(time1);
     });
   });
 });

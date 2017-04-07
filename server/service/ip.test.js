@@ -36,24 +36,22 @@ describe('service/ip', function () {
   describe('getLocationWithCacheAsync', function () {
     let ip;
 
+    it('should return false with invalid ip', function* () {
+      this.timeout(20000);
+      let res = yield IpService.getLocationWithCacheAsync(-1);
+      expect(res).to.be.false;
+    });
+
     it('should get location success', function* () {
       this.timeout(20000);
       ip = random.getIp();
       let location = yield IpService.getLocationWithCacheAsync(ip);
-      if (location) {
-        expect(location).to.include.keys(['country', 'region', 'city', 'isp']);
-      }
+      expect(location).to.include.keys(['country', 'region', 'city', 'isp']);
     });
 
     it('should get location from cache success', function* () {
       let location = yield IpService.getCacheByIpAsync(ip);
       expect(location).not.to.be.false;
-    });
-
-    it('should return false with invalid ip', function* () {
-      this.timeout(20000);
-      let res = yield IpService.getLocationWithCacheAsync(-1);
-      expect(res).to.be.false;
     });
   });
 });

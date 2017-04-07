@@ -2,7 +2,6 @@
 
 const url = require('url');
 const config = require('config');
-const Promise = require('bluebird');
 
 // 获取 HTTP 地址前缀
 let getBaseHttpUrl = function () {

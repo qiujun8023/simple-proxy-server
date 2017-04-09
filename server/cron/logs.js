@@ -57,5 +57,5 @@ logs.update = cron(config.logs.cron.update, function* () {
 
 // 清理过期日志
 logs.clean = cron(config.logs.cron.clean, function* () {
-  yield Log.deleteByTimeAsync(config.logs.save_days);
+  yield Log.removeByTimeAsync(config.logs.save_days);
 });

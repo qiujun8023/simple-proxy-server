@@ -59,7 +59,7 @@ Log.removeAsync = function* (log_id) {
 };
 
 // 通过时间删除
-Log.deleteByTimeAsync = function* (days_ago) {
+Log.removeByTimeAsync = function* (days_ago) {
   let ms = days_ago * 24 * 60 * 60 * 1000;
   return yield LogModel.destroy({
     where: {

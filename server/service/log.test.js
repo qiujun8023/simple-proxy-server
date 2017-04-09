@@ -78,9 +78,9 @@ describe('service/log', function () {
     });
   });
 
-  describe('deleteByTimeAsync', function () {
-    it('should delete logs success', function* () {
-      yield LogService.deleteByTimeAsync(9999);
+  describe('removeByTimeAsync', function () {
+    it('should remove logs success', function* () {
+      yield LogService.removeByTimeAsync(9999);
     });
   });
 });

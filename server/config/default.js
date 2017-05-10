@@ -20,14 +20,6 @@ let config = {
   env: 'development',
   debug: true,
 
-  logs: {
-    save_days: 180, // 访问日志保存天数，为 0 则不保存
-    cron: { // 格式为 秒 分 时 天 月 星期
-      update: '0 * * * * *', // 更新数据库中 IP 所在地
-      clean: '0 3 * * * *',    // 清理过期日志
-    },
-  },
-
   session: {
     secret: 'proxy_secret',
     name: 'session',
@@ -49,10 +41,23 @@ let config = {
     timezone: '+08:00',
   },
 
+  influx: {
+    host: '127.0.0.1',
+    port: 8086,
+    protocol: 'http',
+    username: '',
+    password: '',
+    database: 'simple-proxy',
+  },
+
   wechat: {
     corp_id: 'wx4e2c2b771c467c9f', // 企业号 CorpId
     secret: 'k7TGD8xJLDU6-sPH3NwY0eTs2oBPyAINMdbSbGN80fuEt01UK0Z8dWzhm7crgkz7',  // 企业号 Secret
     usertype: 'admin', // member(成员登录)、admin(管理员登录)、all(成员或管理员皆可登录)
+  },
+
+  access_log: {
+    save_days: 180,
   },
 
   logger: {

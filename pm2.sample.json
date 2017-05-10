@@ -18,8 +18,8 @@
       "out_file": "/tmp/simple-proxy.stdout.log"
     },
     {
-      "name": "simple-proxy-cron",
-      "script": "server/cron.js",
+      "name": "simple-proxy-logs",
+      "script": "server/logs.js",
       "env": {
         "NODE_ENV": "production"
       },
@@ -27,8 +27,8 @@
       "watch": false,
       "merge_logs": true,
       "autorestart": true,
-      "error_file": "/tmp/simple-proxy-cron.stderr.log",
-      "out_file": "/tmp/simple-proxy-cron.stdout.log"
+      "error_file": "/tmp/simple-proxy-logs.stderr.log",
+      "out_file": "/tmp/simple-proxy-logs.stdout.log"
     }
   ]
 }

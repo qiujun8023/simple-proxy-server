@@ -28,12 +28,12 @@ let log = function* (info) {
   };
 
   // 插入数据库
-  return yield Log.addAsync(options);
+  return yield Log.pushQueueAsync(options);
 };
 
 let stat = function (req, res, next) {
   // 关闭日志
-  if (config.logs.save_days <= 0) {
+  if (config.access_log.save_days <= 0) {
     return next();
   }
 

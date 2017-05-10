@@ -7,33 +7,24 @@ const UserModel = require('../model').User;
 const SslService = require('./ssl');
 const sequelize = require('../lib/sequelize');
 
+const CACHE_KEY = 'proxies';
+
 let Proxy = module.exports = {};
-
-// 缓存前缀
-Proxy._cache_prefix = 'proxy:';
-
-// 获取缓存 Key
-Proxy.getCacheKeyByDomain = function (domain) {
-  return this._cache_prefix + domain;
-};
 
 // 通过域名获取缓存
 Proxy.getCacheByDomainAsync = function* (domain) {
-  let cache_key = this.getCacheKeyByDomain(domain);
-  let cache = yield redis.get(cache_key);
+  let cache = yield redis.hget(CACHE_KEY, domain);
   return cache ? JSON.parse(cache) : null;
 };
 
 // 通过域名设置缓存
 Proxy.setCacheByDomainAsync = function* (domain, data) {
-  let cache_key = this.getCacheKeyByDomain(domain);
-  return yield redis.set(cache_key, JSON.stringify(data), 'EX', 300);
+  return yield redis.hset(CACHE_KEY, domain, JSON.stringify(data));
 };
 
 // 通过域名删除缓存
 Proxy.removeCacheByDomainAsync = function* (domain) {
-  let cache_key = this.getCacheKeyByDomain(domain);
-  return yield redis.del(cache_key);
+  return yield redis.hdel(CACHE_KEY, domain);
 };
 
 // 通过主键查询

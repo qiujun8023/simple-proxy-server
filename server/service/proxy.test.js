@@ -19,14 +19,6 @@ describe('service/proxy', function () {
     yield utility.removeTestUserAsync(proxy);
   });
 
-  describe('getCacheKeyByDomain', function () {
-    it('should return cache key success', function () {
-      let domain = proxyRandom.getDomain();
-      let cache_key = ProxyService.getCacheKeyByDomain(domain);
-      expect(cache_key).to.equal(ProxyService._cache_prefix + domain);
-    });
-  });
-
   describe('DomainCache', function () {
     let domain = proxyRandom.getDomain();
     let cache_data = {domain};

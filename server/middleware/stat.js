@@ -2,6 +2,7 @@
 
 const co = require('co');
 const config = require('config');
+const now = require('nano-time');
 const requestStats = require('request-stats');
 const {Log} = require('../service');
 const logger = require('../lib/logger');
@@ -21,10 +22,11 @@ let log = function* (info) {
     status: info.res.status,
     method: info.req.method,
     path: info.req.path,
-    ua: info.req.headers['user-agent'] || '',
-    bytes: bytes,
+    user_agent: info.req.headers['user-agent'] || '',
+    bytes,
     time: info.time,
     speed: bytes * 8 / info.time,
+    timestamp: info.timestamp,
   };
 
   // 插入数据库
@@ -38,7 +40,9 @@ let stat = function (req, res, next) {
   }
 
   // 监听事件，记录日志
+  req.timestamp = now();
   requestStats(req, res, function (info) {
+    info.timestamp = req.timestamp;
     co.wrap(log)(info).catch(logger.error);
   });
 

@@ -29,7 +29,7 @@ let config = {
   redis: {
     host: '127.0.0.1',
     port: 6379,
-    keyPrefix: 'simple-proxy:',
+    keyPrefix: 'proxy:',
   },
 
   mysql: {
@@ -47,7 +47,7 @@ let config = {
     protocol: 'http',
     username: '',
     password: '',
-    database: 'simple-proxy',
+    database: 'proxy',
   },
 
   wechat: {

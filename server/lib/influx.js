@@ -42,4 +42,16 @@ let schema = [{
 }];
 
 let option = Object.assign({schema}, config.influx);
-module.exports = new Influx.InfluxDB(option);
+let influx = new Influx.InfluxDB(option);
+
+// 设置保留策略
+let {save_days} = config.access_log;
+if (save_days > 0) {
+  influx.createRetentionPolicy('logs', {
+    duration: save_days + 'd',
+    replication: 1,
+    isDefault: true,
+  });
+}
+
+module.exports = influx;

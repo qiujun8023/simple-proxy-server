@@ -2,7 +2,7 @@
   "name": "simple-proxy",
   "version": "3.0.3",
   "engineStrict": true,
-  "description": "简易反向代理，支持 WEB 界面管理，支持 HTTPS",
+  "description": "简易反向代理及其相关统计分析",
   "main": "server/app.js",
   "scripts": {
     "dev": "nodemon -e js,yaml server/app.js",
@@ -18,7 +18,9 @@
     "url": "git://github.com/qious/simple-proxy.git"
   },
   "keywords": [
-    "proxy"
+    "proxy",
+    "http",
+    "https"
   ],
   "author": "qiujun",
   "license": "MIT",

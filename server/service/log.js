@@ -63,20 +63,6 @@ Log.addBrowserAsync = function* (timestamp, proxy_id, browser) {
   }]);
 };
 
-// 浏览器引擎信息
-Log.addEngineAsync = function* (timestamp, proxy_id, engine) {
-  return yield influx.writePoints([{
-    measurement: influx.MEASUREMENTS.ENGINE,
-    fields: {sentinel: true},
-    tags: {
-      proxy_id,
-      name: engine.name || ENPTY_VALUE,
-      version: engine.version || ENPTY_VALUE,
-    },
-    timestamp,
-  }]);
-};
-
 // 操作系统信息
 Log.addOsAsync = function* (timestamp, proxy_id, os) {
   return yield influx.writePoints([{
@@ -118,9 +104,8 @@ Log.addAsync = function* (log) {
   yield this.addLocationAsync(timestamp, proxy_id, location);
 
   // 设备信息
-  let {browser, engine, os, device} = parser(log.user_agent);
+  let {browser, os, device} = parser(log.user_agent);
   yield this.addBrowserAsync(timestamp, proxy_id, browser);
-  yield this.addEngineAsync(timestamp, proxy_id, engine);
   yield this.addOsAsync(timestamp, proxy_id, os);
   yield this.addDeviceAsync(timestamp, proxy_id, device);
 

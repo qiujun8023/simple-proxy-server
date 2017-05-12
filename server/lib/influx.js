@@ -8,7 +8,6 @@ const MEASUREMENTS = {
   RAW: 'raw',
   LOCATION: 'location',
   BROWSER: 'browser',
-  ENGINE: 'engine',
   OS: 'os',
   DEVICE: 'device',
 };
@@ -37,11 +36,6 @@ let schema = [
   },
   {
     measurement: MEASUREMENTS.BROWSER,
-    fields: {sentinel: FieldType.BOOLEAN},
-    tags: ['proxy_id', 'name', 'version'],
-  },
-  {
-    measurement: MEASUREMENTS.ENGINE,
     fields: {sentinel: FieldType.BOOLEAN},
     tags: ['proxy_id', 'name', 'version'],
   },

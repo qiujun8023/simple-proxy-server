@@ -11,11 +11,17 @@ cache:
   directories:
     - node_modules
 
+before_install:
+  - wget https://dl.influxdata.com/influxdb/releases/influxdb_1.2.2_amd64.deb --no-check-certificate
+  - sudo dpkg -i influxdb_1.2.2_amd64.deb
+  - sudo service influxdb start
+
 install:
   - npm install -q
 
 before_script:
   - mysql -e 'CREATE DATABASE proxy;'
+  - influx -execute 'CREATE DATABASE proxy'
   - cp server/config/travis_ci.js server/config/local.js
   - cp server/config/ssl/server.sample.crt server/config/ssl/server.crt
   - cp server/config/ssl/server.sample.key server/config/ssl/server.key

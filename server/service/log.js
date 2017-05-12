@@ -1,71 +1,128 @@
 'use strict';
 
 const _ = require('lodash');
-const LogModel = require('../model').Log;
+const parser = require('ua-parser-js');
+const redis = require('../lib/redis');
+const influx = require('../lib/influx');
+const IpService = require('./ip');
+
+const QUEUE_KEY = 'logs';
+const ENPTY_VALUE = 'UNKNOWN';
 
 let Log = module.exports = {};
 
-// 增加日志
-Log.addAsync = function* (options) {
-  let log = yield LogModel.create(options);
-  return log.get({plain: true});
+// 加入队列
+Log.pushQueueAsync = function* (data) {
+  let res = yield redis.rpush(QUEUE_KEY, JSON.stringify(data));
+  return Boolean(res);
 };
 
-// 获取单条日志
-Log.getAsync = function* (log_id) {
-  let log = yield LogModel.findById(log_id);
-  if (!log) {
-    return false;
-  }
-
-  return log.get({plain: true});
+// 取出队列
+Log.popQueueAsync = function* (timeout) {
+  let cache = yield redis.blpop(QUEUE_KEY, timeout || 0);
+  return cache ? JSON.parse(cache[1]) : null;
 };
 
-// 获取未设置地址的 IP 集合
-Log.findNeedUpdateAsync = function* (limit) {
-  let logs = yield LogModel.aggregate('ip', 'DISTINCT', {
-    where: {
-      country: null,
-      region: null,
-      city: null,
-      isp: null,
+// 原始数据
+Log.addRawAsync = function* (timestamp, raw) {
+  return yield influx.writePoints([{
+    measurement: influx.MEASUREMENTS.RAW,
+    fields: _.pick(raw, ['status', 'bytes', 'cost', 'speed']),
+    tags: _.pick(raw, ['proxy_id', 'ip', 'status', 'method', 'path']),
+    timestamp,
+  }]);
+};
+
+// 位置信息
+Log.addLocationAsync = function* (timestamp, proxy_id, location) {
+  return yield influx.writePoints([{
+    measurement: influx.MEASUREMENTS.LOCATION,
+    fields: {sentinel: true},
+    tags: {
+      proxy_id,
+      country: location && location.country ? location.country : ENPTY_VALUE,
+      region: location && location.region ? location.region : ENPTY_VALUE,
+      city: location && location.city ? location.city : ENPTY_VALUE,
+      isp: location && location.isp ? location.isp : ENPTY_VALUE,
     },
-    plain: false,
-  });
-
-  let res = [];
-  for (let log of logs) {
-    res.push(log['DISTINCT']);
-  }
-
-  return _.sampleSize(res, limit);
+    timestamp,
+  }]);
 };
 
-// 通过 IP 更新
-Log.updateByIpAsync = function* (ip, data) {
-  return yield LogModel.update(data, {
-    where: {ip},
-  });
-};
-
-// 删除单条日志
-Log.removeAsync = function* (log_id) {
-  let log = yield LogModel.findById(log_id);
-  if (!log) {
-    return false;
-  }
-
-  return yield log.destroy();
-};
-
-// 通过时间删除
-Log.deleteByTimeAsync = function* (days_ago) {
-  let ms = days_ago * 24 * 60 * 60 * 1000;
-  return yield LogModel.destroy({
-    where: {
-      created_at: {
-        $lt: new Date(new Date() - ms),
-      },
+// 浏览器信息
+Log.addBrowserAsync = function* (timestamp, proxy_id, browser) {
+  return yield influx.writePoints([{
+    measurement: influx.MEASUREMENTS.BROWSER,
+    fields: {sentinel: true},
+    tags: {
+      proxy_id,
+      name: browser.name || ENPTY_VALUE,
+      version: browser.version || ENPTY_VALUE,
     },
-  });
+    timestamp,
+  }]);
+};
+
+// 浏览器引擎信息
+Log.addEngineAsync = function* (timestamp, proxy_id, engine) {
+  return yield influx.writePoints([{
+    measurement: influx.MEASUREMENTS.ENGINE,
+    fields: {sentinel: true},
+    tags: {
+      proxy_id,
+      name: engine.name || ENPTY_VALUE,
+      version: engine.version || ENPTY_VALUE,
+    },
+    timestamp,
+  }]);
+};
+
+// 操作系统信息
+Log.addOsAsync = function* (timestamp, proxy_id, os) {
+  return yield influx.writePoints([{
+    measurement: influx.MEASUREMENTS.OS,
+    fields: {sentinel: true},
+    tags: {
+      proxy_id,
+      name: os.name || ENPTY_VALUE,
+      version: os.version || ENPTY_VALUE,
+    },
+    timestamp,
+  }]);
+};
+
+// 终端信息
+Log.addDeviceAsync = function* (timestamp, proxy_id, device) {
+  return yield influx.writePoints([{
+    measurement: influx.MEASUREMENTS.DEVICE,
+    fields: {sentinel: true},
+    tags: {
+      proxy_id,
+      vendor: device.vendor || ENPTY_VALUE,
+      model: device.model || ENPTY_VALUE,
+      type: device.type || ENPTY_VALUE,
+    },
+    timestamp,
+  }]);
+};
+
+// 添加日志
+Log.addAsync = function* (log) {
+  let {timestamp, proxy_id} = log;
+
+  // 原始数据
+  yield this.addRawAsync(timestamp, log);
+
+  // 位置信息
+  let location = yield IpService.getLocationWithCacheAsync(log.ip);
+  yield this.addLocationAsync(timestamp, proxy_id, location);
+
+  // 设备信息
+  let {browser, engine, os, device} = parser(log.user_agent);
+  yield this.addBrowserAsync(timestamp, proxy_id, browser);
+  yield this.addEngineAsync(timestamp, proxy_id, engine);
+  yield this.addOsAsync(timestamp, proxy_id, os);
+  yield this.addDeviceAsync(timestamp, proxy_id, device);
+
+  return true;
 };

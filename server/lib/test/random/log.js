@@ -1,6 +1,7 @@
 'use strict';
 
 const Chance = require('chance');
+const random_ua = require('random-ua');
 
 let chance = new Chance();
 
@@ -8,38 +9,22 @@ module.exports = {
   getIp() {
     return chance.ip();
   },
-  getCountry() {
-    return chance.country();
-  },
-  getRegion() {
-    return chance.country({full: true});
-  },
-  getCity() {
-    return chance.city();
-  },
-  getIsp() {
-    return chance.name();
-  },
-  getIsComplete() {
-    return chance.bool();
-  },
   getStatus() {
     return chance.pickone([200, 400, 403, 404, 500, 502]);
   },
   getMethod() {
-    let methods = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE'];
-    return chance.pickone(methods);
+    return chance.pickone(['GET', 'POST', 'PUT', 'DELETE']);
   },
   getPath() {
     return chance.url();
   },
-  getUa() {
-    return chance.name();
+  getUserAgent() {
+    return random_ua.generate();
   },
   getBytes() {
     return chance.integer({min: 100, max: 10000});
   },
-  getTime() {
+  getCost() {
     return chance.integer({min: 1, max: 1000});
   },
   getSpeed() {

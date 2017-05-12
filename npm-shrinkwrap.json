@@ -2386,6 +2386,10 @@
     "random-bytes": {
       "version": "1.0.0"
     },
+    "random-ua": {
+      "version": "0.0.6",
+      "dev": true
+    },
     "randomatic": {
       "version": "1.1.6"
     },

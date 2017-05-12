@@ -1,65 +1,128 @@
 'use strict';
 
+const _ = require('lodash');
 const parser = require('ua-parser-js');
 const redis = require('../lib/redis');
 const influx = require('../lib/influx');
 const IpService = require('./ip');
 
 const QUEUE_KEY = 'logs';
+const ENPTY_VALUE = 'UNKNOWN';
 
 let Log = module.exports = {};
 
+// 加入队列
 Log.pushQueueAsync = function* (data) {
-  return yield redis.rpush(QUEUE_KEY, JSON.stringify(data));
+  let res = yield redis.rpush(QUEUE_KEY, JSON.stringify(data));
+  return Boolean(res);
 };
 
+// 取出队列
 Log.popQueueAsync = function* (timeout) {
   let cache = yield redis.blpop(QUEUE_KEY, timeout || 0);
   return cache ? JSON.parse(cache[1]) : null;
 };
 
+// 原始数据
+Log.addRawAsync = function* (timestamp, raw) {
+  return yield influx.writePoints([{
+    measurement: influx.MEASUREMENTS.RAW,
+    fields: _.pick(raw, ['status', 'bytes', 'cost', 'speed']),
+    tags: _.pick(raw, ['proxy_id', 'ip', 'status', 'method', 'path']),
+    timestamp,
+  }]);
+};
+
+// 位置信息
+Log.addLocationAsync = function* (timestamp, proxy_id, location) {
+  return yield influx.writePoints([{
+    measurement: influx.MEASUREMENTS.LOCATION,
+    fields: {sentinel: true},
+    tags: {
+      proxy_id,
+      country: location && location.country ? location.country : ENPTY_VALUE,
+      region: location && location.region ? location.region : ENPTY_VALUE,
+      city: location && location.city ? location.city : ENPTY_VALUE,
+      isp: location && location.isp ? location.isp : ENPTY_VALUE,
+    },
+    timestamp,
+  }]);
+};
+
+// 浏览器信息
+Log.addBrowserAsync = function* (timestamp, proxy_id, browser) {
+  return yield influx.writePoints([{
+    measurement: influx.MEASUREMENTS.BROWSER,
+    fields: {sentinel: true},
+    tags: {
+      proxy_id,
+      name: browser.name || ENPTY_VALUE,
+      version: browser.version || ENPTY_VALUE,
+    },
+    timestamp,
+  }]);
+};
+
+// 浏览器引擎信息
+Log.addEngineAsync = function* (timestamp, proxy_id, engine) {
+  return yield influx.writePoints([{
+    measurement: influx.MEASUREMENTS.ENGINE,
+    fields: {sentinel: true},
+    tags: {
+      proxy_id,
+      name: engine.name || ENPTY_VALUE,
+      version: engine.version || ENPTY_VALUE,
+    },
+    timestamp,
+  }]);
+};
+
+// 操作系统信息
+Log.addOsAsync = function* (timestamp, proxy_id, os) {
+  return yield influx.writePoints([{
+    measurement: influx.MEASUREMENTS.OS,
+    fields: {sentinel: true},
+    tags: {
+      proxy_id,
+      name: os.name || ENPTY_VALUE,
+      version: os.version || ENPTY_VALUE,
+    },
+    timestamp,
+  }]);
+};
+
+// 终端信息
+Log.addDeviceAsync = function* (timestamp, proxy_id, device) {
+  return yield influx.writePoints([{
+    measurement: influx.MEASUREMENTS.DEVICE,
+    fields: {sentinel: true},
+    tags: {
+      proxy_id,
+      vendor: device.vendor || ENPTY_VALUE,
+      model: device.model || ENPTY_VALUE,
+      type: device.type || ENPTY_VALUE,
+    },
+    timestamp,
+  }]);
+};
+
+// 添加日志
 Log.addAsync = function* (log) {
   let {timestamp, proxy_id} = log;
 
-  // 分析 UserAgent 并获取 IP 所在地
-  let user_agent = parser(log.user_agent);
+  // 原始数据
+  yield this.addRawAsync(timestamp, log);
+
+  // 位置信息
   let location = yield IpService.getLocationWithCacheAsync(log.ip);
+  yield this.addLocationAsync(timestamp, proxy_id, location);
 
-  let fields = {
-    // 位置信息
-    ip: log.ip,
-    country: location && location.country ? location.country : '',
-    region: location && location.region ? location.region : '',
-    city: location && location.city ? location.city : '',
-    isp: location && location.isp ? location.isp : '',
+  // 设备信息
+  let {browser, engine, os, device} = parser(log.user_agent);
+  yield this.addBrowserAsync(timestamp, proxy_id, browser);
+  yield this.addEngineAsync(timestamp, proxy_id, engine);
+  yield this.addOsAsync(timestamp, proxy_id, os);
+  yield this.addDeviceAsync(timestamp, proxy_id, device);
 
-    // 请求信息
-    is_complete: log.is_complete,
-    status: log.status,
-    method: log.method,
-    path: log.path,
-
-    // 设备信息
-    browser_name: user_agent.browser.name || '',
-    browser_version: user_agent.browser.version || '',
-    engine_name: user_agent.engine.name || '',
-    engine_version: user_agent.engine.version || '',
-    os_name: user_agent.os.name || '',
-    os_version: user_agent.os.version || '',
-    device_vendor: user_agent.device.vendor || '',
-    device_model: user_agent.device.model || '',
-    device_type: user_agent.device.type || '',
-
-    // 速度信息
-    bytes: log.bytes,
-    time: log.time,
-    speed: log.speed,
-  };
-
-  return yield influx.writePoints([{
-    measurement: 'logs',
-    tags: {proxy_id},
-    fields,
-    timestamp,
-  }]);
+  return true;
 };

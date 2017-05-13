@@ -32,7 +32,7 @@ let schema = [
   {
     measurement: MEASUREMENTS.LOCATION,
     fields: {sentinel: FieldType.BOOLEAN},
-    tags: ['proxy_id', 'country', 'region', 'city', 'isp'],
+    tags: ['proxy_id', 'ip', 'country', 'region', 'city', 'isp'],
   },
   {
     measurement: MEASUREMENTS.BROWSER,

@@ -55,6 +55,6 @@ describe(BASE_RUL, function () {
 
   it('should get slow hot ip logs success', function* () {
     let body = yield getLogsAsync('/hot_ip');
-    expect(body[0]).to.include.keys(['ip', 'count']);
+    expect(body[0]).to.include.keys(['ip', 'region', 'city', 'count']);
   });
 });

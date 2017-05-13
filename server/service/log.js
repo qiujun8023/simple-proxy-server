@@ -34,12 +34,13 @@ Log.addRawAsync = function* (timestamp, raw) {
 };
 
 // 位置信息
-Log.addLocationAsync = function* (timestamp, proxy_id, location) {
+Log.addLocationAsync = function* (timestamp, proxy_id, ip, location) {
   return yield influx.writePoints([{
     measurement: influx.MEASUREMENTS.LOCATION,
     fields: {sentinel: true},
     tags: {
       proxy_id,
+      ip,
       country: location && location.country ? location.country : ENPTY_VALUE,
       region: location && location.region ? location.region : ENPTY_VALUE,
       city: location && location.city ? location.city : ENPTY_VALUE,
@@ -101,7 +102,7 @@ Log.addAsync = function* (log) {
 
   // 位置信息
   let location = yield IpService.getLocationWithCacheAsync(log.ip);
-  yield this.addLocationAsync(timestamp, proxy_id, location);
+  yield this.addLocationAsync(timestamp, proxy_id, log.ip, location);
 
   // 设备信息
   let {browser, os, device} = parser(log.user_agent);
@@ -251,11 +252,11 @@ Log.findHotAsync = function* (proxy_ids, start_day, end_day) {
 // 热门IP
 Log.findHotIpAsync = function* (proxy_ids, start_day, end_day) {
   let expression = this.getProxyExpression(proxy_ids);
-  let sql = `SELECT COUNT("bytes") AS "count" FROM "raw"
+  let sql = `SELECT COUNT("sentinel") AS "count" FROM "location"
              WHERE TIME < NOW() - ${start_day}d
              AND TIME > NOW() - ${end_day}d
              AND "proxy_id" =~ ${expression}
-            GROUP BY "ip"`;
+            GROUP BY "ip", "region", "city"`;
   let res = yield influx.query(sql);
   res.sort((a, b) => b.count - a.count);
   return res.slice(0, 100);

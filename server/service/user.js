@@ -51,6 +51,7 @@ User.searchAsync = function* (key) {
         name: {$like: key},
       },
     },
+    order: 'regist_at',
   });
 
   let res = [];

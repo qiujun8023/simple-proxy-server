@@ -29,7 +29,6 @@ module.exports = sequelize.define('proxy', {
   hostname: {
     type: Sequelize.STRING,
     allowNull: false,
-    unique: true,
     comment: '回源域名',
   },
   target: {

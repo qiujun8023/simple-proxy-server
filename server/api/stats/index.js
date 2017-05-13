@@ -54,8 +54,8 @@ router.get('/os', function* (req, res) {
   res.send(data);
 });
 
-router.get('/status', function* (req, res) {
+router.get('/browser', function* (req, res) {
   let {proxy_ids, start_day, end_day} = req.query;
-  let data = yield Log.findStatusAsync(proxy_ids, start_day, end_day);
+  let data = yield Log.findBrowserAsync(proxy_ids, start_day, end_day);
   res.send(data);
 });

@@ -11,7 +11,20 @@ describe(BASE_RUL, function () {
   let user;
   let proxy;
 
+  let getStatsAsync = function* (url) {
+    let res = yield api
+      .get(BASE_RUL + url)
+      .use(user_plugin.plugin())
+      .query({
+        start_day: 0,
+        end_day: 1,
+      })
+      .expect(200);
+    return res.body;
+  };
+
   before(function* () {
+    this.timeout(10000);
     user = yield user_plugin.before();
     proxy = yield utility.createTestProxyAsync({user_id: user.user_id});
     let log = utility.generateLog({proxy_id: proxy.proxy_id});
@@ -23,87 +36,33 @@ describe(BASE_RUL, function () {
     yield utility.removeTestProxyAsync(proxy);
   });
 
-  describe('get flow', function () {
-    it('should get flow data success', function* () {
-      let res = yield api
-        .get(BASE_RUL + '/flow')
-        .use(user_plugin.plugin())
-        .query({
-          start_day: 0,
-          end_day: 1,
-        })
-        .expect(200);
-      expect(res.body[0]).to.include.keys(['flow', 'request', 'time']);
-    });
+  it('should get flow data success', function* () {
+    let body = yield getStatsAsync('/flow');
+    expect(body[0]).to.include.keys(['flow', 'request', 'time']);
   });
 
-  describe('get speed', function () {
-    it('should get speed data success', function* () {
-      let res = yield api
-        .get(BASE_RUL + '/speed')
-        .use(user_plugin.plugin())
-        .query({
-          start_day: 0,
-          end_day: 1,
-        })
-        .expect(200);
-      expect(res.body[0]).to.include.keys(['value', 'time']);
-    });
+  it('should get speed data success', function* () {
+    let body = yield getStatsAsync('/speed');
+    expect(body[0]).to.include.keys(['value', 'time']);
   });
 
-  describe('get region', function () {
-    it('should get region data success', function* () {
-      let res = yield api
-        .get(BASE_RUL + '/region')
-        .use(user_plugin.plugin())
-        .query({
-          start_day: 0,
-          end_day: 1,
-        })
-        .expect(200);
-      expect(res.body[0]).to.include.keys(['region', 'count']);
-    });
+  it('should get region data success', function* () {
+    let body = yield getStatsAsync('/region');
+    expect(body[0]).to.include.keys(['region', 'count']);
   });
 
-  describe('get device', function () {
-    it('should get device data success', function* () {
-      let res = yield api
-        .get(BASE_RUL + '/device')
-        .use(user_plugin.plugin())
-        .query({
-          start_day: 0,
-          end_day: 1,
-        })
-        .expect(200);
-      expect(res.body[0]).to.include.keys(['vendor', 'model', 'count']);
-    });
+  it('should get device data success', function* () {
+    let body = yield getStatsAsync('/device');
+    expect(body[0]).to.include.keys(['vendor', 'model', 'count']);
   });
 
-  describe('get os', function () {
-    it('should get os data success', function* () {
-      let res = yield api
-        .get(BASE_RUL + '/os')
-        .use(user_plugin.plugin())
-        .query({
-          start_day: 0,
-          end_day: 1,
-        })
-        .expect(200);
-      expect(res.body[0]).to.include.keys(['name', 'version', 'count']);
-    });
+  it('should get os data success', function* () {
+    let body = yield getStatsAsync('/os');
+    expect(body[0]).to.include.keys(['name', 'version', 'count']);
   });
 
-  describe('get status', function () {
-    it('should get status data success', function* () {
-      let res = yield api
-        .get(BASE_RUL + '/status')
-        .use(user_plugin.plugin())
-        .query({
-          start_day: 0,
-          end_day: 1,
-        })
-        .expect(200);
-      expect(res.body[0]).to.include.keys(['status', 'count']);
-    });
+  it('should get browser data success', function* () {
+    let body = yield getStatsAsync('/browser');
+    expect(body[0]).to.include.keys(['name', 'version', 'count']);
   });
 });

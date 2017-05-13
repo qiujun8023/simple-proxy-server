@@ -1,5 +1,6 @@
 'use strict';
 
+const url = require('url');
 const co = require('co');
 const now = require('nano-time');
 const requestStats = require('request-stats');
@@ -19,7 +20,7 @@ let log = function* (info) {
     ip: info.req.headers['x-forwarded-for'],
     status: info.res.status,
     method: info.req.method,
-    path: info.req.path,
+    path: url.parse(info.req.path).pathname,
     user_agent: info.req.headers['user-agent'] || '',
     bytes,
     cost: info.time,

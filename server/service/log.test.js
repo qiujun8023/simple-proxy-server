@@ -1,25 +1,11 @@
 'use strict';
 
 const {expect} = require('chai');
-const random = require('../lib/test/random/log');
 const LogService = require('./log');
-
-let randomLog = function () {
-  return {
-    proxy_id: -1,
-    ip: random.getIp(),
-    status: random.getStatus(),
-    method: random.getMethod(),
-    path: random.getPath(),
-    user_agent: random.getUserAgent(),
-    bytes: random.getBytes(),
-    cost: random.getCost(),
-    speed: random.getSpeed(),
-  };
-};
+const utility = require('../lib/test/utility');
 
 describe('service/log', function () {
-  let log = randomLog();
+  let log = utility.generateLog();
 
   describe('Queue', function () {
     it('shoud emptied queue success', function* () {
@@ -39,6 +25,7 @@ describe('service/log', function () {
   });
 
   describe('addAsync', function () {
+    this.timeout(5000);
     it('should add log success', function* () {
       let res = yield LogService.addAsync(log);
       expect(res).to.be.true;

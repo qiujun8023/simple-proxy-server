@@ -24,6 +24,10 @@
         "NODE_ENV": "production"
       },
       "log_date_format": "YYYY-MM-DD HH:mm Z",
+      "exec_mode": "cluster",
+      "instances": 2,
+      "min_uptime": "200s",
+      "max_memory_restart": "500M",
       "watch": false,
       "merge_logs": true,
       "autorestart": true,

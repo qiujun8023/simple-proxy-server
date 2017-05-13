@@ -175,14 +175,14 @@ Log.findAreaAsync = function* (proxy_ids, start_day, end_day, type) {
   return yield influx.query(sql);
 };
 
-// 状态码占比
-Log.findStatusAsync = function* (proxy_ids, start_day, end_day) {
+// 设备占比
+Log.findDeviceAsync = function* (proxy_ids, start_day, end_day) {
   let expression = this.getProxyExpression(proxy_ids);
-  let sql = `SELECT COUNT("bytes") AS "count" FROM "raw"
+  let sql = `SELECT COUNT("sentinel") AS "count" FROM "device"
              WHERE TIME < NOW() - ${start_day}d
              AND TIME > NOW() - ${end_day}d
              AND "proxy_id" =~ ${expression}
-             GROUP BY "status"`;
+             GROUP BY "vendor", "model"`;
   return yield influx.query(sql);
 };
 
@@ -197,14 +197,14 @@ Log.findOsAsync = function* (proxy_ids, start_day, end_day) {
   return yield influx.query(sql);
 };
 
-// 设备占比
-Log.findDeviceAsync = function* (proxy_ids, start_day, end_day) {
+// 状态码占比
+Log.findBrowserAsync = function* (proxy_ids, start_day, end_day) {
   let expression = this.getProxyExpression(proxy_ids);
-  let sql = `SELECT COUNT("sentinel") AS "count" FROM "device"
+  let sql = `SELECT COUNT("sentinel") AS "count" FROM "browser"
              WHERE TIME < NOW() - ${start_day}d
              AND TIME > NOW() - ${end_day}d
              AND "proxy_id" =~ ${expression}
-             GROUP BY "vendor", "model"`;
+             GROUP BY "name", "version"`;
   return yield influx.query(sql);
 };
 
